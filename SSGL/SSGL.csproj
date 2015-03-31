@@ -58,7 +58,11 @@
     <Compile Include="Entity\Tile\Tile.cs" />
     <Compile Include="Entity\Tile\TileChunk.cs" />
     <Compile Include="Entity\Tile\TileLayer.cs" />
-    <Compile Include="Helper\Enum\MapTerrain.cs" />
+    <Compile Include="Entity\UI\BaseUI.cs" />
+    <Compile Include="Helper\Cursor.cs" />
+    <Compile Include="Helper\Enum\Misc.cs" />
+    <Compile Include="Helper\Enum\Terrain.cs" />
+    <Compile Include="Helper\Enum\UI.cs" />
     <Compile Include="Helper\FPSCounter.cs" />
     <Compile Include="Helper\Message\FloatMessageData.cs" />
     <Compile Include="Helper\Message\IMessageData.cs" />

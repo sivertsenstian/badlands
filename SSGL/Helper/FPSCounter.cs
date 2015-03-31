@@ -1,28 +1,20 @@
 ﻿#region Using Statements
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using SSGL.Core;
+using SSGL.Entity.UI;
 using System;
 #endregion
 
 namespace SSGL.Helper
 {
-    public class FPSCounter : DrawableGameComponent
+    public class FPSCounter : BaseUI
     {
-        SpriteBatch spriteBatch;
-        SpriteFont spriteFont;
+        public SpriteFont Font { get; set; }
 
         int frameRate = 0;
         int frameCounter = 0;
         TimeSpan elapsedTime = TimeSpan.Zero;
-
-
-        public FPSCounter(Game game, SpriteBatch Batch, SpriteFont Font)
-            : base(game)
-        {
-            spriteFont = Font;
-            spriteBatch = Batch;
-        }
-
 
         public override void Update(GameTime gameTime)
         {
@@ -40,12 +32,9 @@ namespace SSGL.Helper
         public override void Draw(GameTime gameTime)
         {
             frameCounter++;
-
             string fps = string.Format("fps: {0} mem : {1}", frameRate, GC.GetTotalMemory(false));
-            spriteBatch.Begin();
-            spriteBatch.DrawString(spriteFont, fps, new Vector2(1, 1), Color.Black);
-            spriteBatch.DrawString(spriteFont, fps, new Vector2(0, 0), Color.White);
-            spriteBatch.End();
+            GameDirector.SpriteBatch.DrawString(Font, fps, new Vector2(1, 1), Color.Black);
+            GameDirector.SpriteBatch.DrawString(Font, fps, new Vector2(0, 0), Color.White);
         }
     }
 }

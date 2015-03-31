@@ -5,15 +5,11 @@ using System.Text;
 
 namespace SSGL.Helper.Enum
 {
-    public enum MapTerrain
+    public enum Terrain
     {
-        DEBUG,
         SAND,
-        GRASS,
         WATER,
-        ROCK,
-        SLIME
-        
+        ROCK
     }
     
 }

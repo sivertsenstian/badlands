@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SSGL.Core;
+using SSGL.Entity.Actor;
 using SSGL.Helper.Enum;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace SSGL.Entity.Skybox
 {
-    public class Skybox
+    public class Skybox : BaseActor
     {
         public VertexBuffer Buffer { get; set; }
         public List<Vector3> Positions { get; set; }
@@ -48,7 +49,7 @@ namespace SSGL.Entity.Skybox
             else
             {
                 effect = new BasicEffect(device);
-                effect.Texture = GameDirector.Assets.Textures[MapTerrain.DEBUG];
+                effect.Texture = GameDirector.Assets.Textures[Misc.DEBUG];
                 effect.TextureEnabled = true;
                 this._effects.Add(effect);
             }
@@ -84,7 +85,7 @@ namespace SSGL.Entity.Skybox
             this.Load();
         }
 
-        public void Load()
+        public override void Load()
         {
             List<VertexPositionNormalTexture> front = new List<VertexPositionNormalTexture>();
             List<VertexPositionNormalTexture> back = new List<VertexPositionNormalTexture>();
@@ -156,27 +157,32 @@ namespace SSGL.Entity.Skybox
 
             this._worldTranslation = Matrix.CreateTranslation(this._camera.Position);
             this._worldScale = Matrix.CreateScale(this._size);
+
         }
 
-        public void Update(GameTime gameTime, Camera camera)
+        public override void Update(GameTime gameTime)
         {
             this._worldTranslation = Matrix.CreateTranslation(this._camera.Position);
             this._worldScale = Matrix.CreateScale(this._size);
+
+            base.Update(gameTime);
         }
 
-        public void Draw(GameTime gameTime, Camera camera)
+        public override void Draw(GameTime gameTime)
         {
+            BasicEffect currentEffect;
             for (int i = 0; i < this._sides.Count; i++)
             {
-                this._effects[i].World = this._worldScale * this._worldRotation * this._worldTranslation;
-                this._effects[i].View = camera.View;
-                this._effects[i].Projection = camera.Projection;
+                currentEffect = this._effects.Count == this._sides.Count ? this._effects[i] : this._effects[0];
+                currentEffect.World = this._worldScale * this._worldRotation * this._worldTranslation;
+                currentEffect.View = this._camera.View;
+                currentEffect.Projection = this._camera.Projection;
 
                 RasterizerState rasterizerState = new RasterizerState();
                 //rasterizerState.CullMode = CullMode.None;
                 this._device.RasterizerState = rasterizerState;
 
-                foreach (EffectPass pass in this._effects[i].CurrentTechnique.Passes)
+                foreach (EffectPass pass in currentEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
                     using (Buffer = new VertexBuffer(this._device, typeof(VertexPositionNormalTexture), this._sides[i].Count, BufferUsage.WriteOnly))
@@ -194,6 +200,7 @@ namespace SSGL.Entity.Skybox
                     }
                 }
             }
+            base.Draw(gameTime);
         }
     }
 }

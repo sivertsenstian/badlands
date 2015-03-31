@@ -16,7 +16,7 @@ namespace SSGL.Entity.Map
         public int TileHeight { get; set; }
 
         public List<List<int>> Terrain { get; set; }
-        public Dictionary<MapTerrain, Texture2D> TerrainTextures { get; set; }
+        public Dictionary<Terrain, Texture2D> TerrainTextures { get; set; }
 
         public void Generate()
         {

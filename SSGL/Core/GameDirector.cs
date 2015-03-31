@@ -6,13 +6,27 @@ using SSGL.Entity;
 using Microsoft.Xna.Framework.Graphics;
 using SSGL.Helper.Enum;
 using SSGL.Entity.Actor;
+using SSGL.Entity.UI;
+using Microsoft.Xna.Framework;
 
 namespace SSGL.Core
 {
     public static class GameDirector
     {
-        public static List<BaseActor> Actors = new List<BaseActor>();
-        public static GameAssets Assets = new GameAssets();
+        public static List<BaseActor> Actors;
+        public static List<BaseUI> UI;
+        public static GameAssets Assets;
+        public static Camera Camera;
+        public static SpriteBatch SpriteBatch;
+        public static GraphicsDevice Device;
+        public static Game Game;
+
+        static GameDirector()
+        {
+            Actors = new List<BaseActor>();
+            UI = new List<BaseUI>();
+            Assets = new GameAssets();
+        }
 
     }
 }
