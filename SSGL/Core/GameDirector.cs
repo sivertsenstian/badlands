@@ -13,7 +13,7 @@ namespace SSGL.Core
 {
     public static class GameDirector
     {
-        public static List<BaseActor> Actors;
+        public static Dictionary<Guid, BaseActor> Actors;
         public static List<BaseUI> UI;
         public static GameAssets Assets;
         public static Camera Camera;
@@ -23,9 +23,14 @@ namespace SSGL.Core
 
         static GameDirector()
         {
-            Actors = new List<BaseActor>();
+            Actors = new Dictionary<Guid, BaseActor>();
             UI = new List<BaseUI>();
             Assets = new GameAssets();
+        }
+
+        public static BaseActor GetActor(Guid id)
+        {
+            return Actors[id];
         }
 
     }

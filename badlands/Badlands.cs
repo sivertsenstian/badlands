@@ -2,9 +2,13 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SSGL.Core;
+using SSGL.Entity.Actor;
 using SSGL.Entity.Skybox;
+using SSGL.Entity.Tile;
+using SSGL.Entity.UI;
 using SSGL.Helper;
 using SSGL.Helper.Enum;
+using System;
 using System.Collections.Generic;
 
 namespace Badlands.Core
@@ -14,6 +18,7 @@ namespace Badlands.Core
     /// </summary>
     public class Badlands : Game
     {
+        Model test;
         GraphicsDeviceManager _graphics;
         public Badlands()
             : base()
@@ -34,7 +39,7 @@ namespace Badlands.Core
             GameDirector.Game = this;
 
             //Init camera
-            GameDirector.Camera = new Camera(this, new Vector3(2750, 1000, 2750), Vector3.Zero, Vector3.Up, 100, 5000);
+            GameDirector.Camera = new Camera(this, new Vector3(850, 500, 850), Vector3.Zero, Vector3.Up, 100, 10000);
             Components.Add(GameDirector.Camera);
 
             //Init graphicsdevice
@@ -74,24 +79,43 @@ namespace Badlands.Core
 
             //Load Skybox
             GameDirector.Assets.Skybox = new List<Texture2D> {
-                Content.Load<Texture2D>("Texture/Skybox/Stars"),
-                Content.Load<Texture2D>("Texture/Skybox/Stars"),
-                Content.Load<Texture2D>("Texture/Skybox/Stars"),
-                Content.Load<Texture2D>("Texture/Skybox/Stars"),
-                Content.Load<Texture2D>("Texture/Skybox/Stars"),
-                Content.Load<Texture2D>("Texture/Skybox/Stars")
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Front"),
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Back"),
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Left"),
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Right"),
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Top"),
+                Content.Load<Texture2D>("Texture/Skybox/Mianmar/Bottom")
             };
-                    
+
+            test = Content.Load<Model>("Model/torus");
             //Load Actors
-            Skybox skybox = new Skybox(GameDirector.Device, GameDirector.Camera, GameDirector.Assets.Skybox);
-            GameDirector.Actors.Add(skybox);
+            Skybox skybox = new Skybox(GameDirector.Assets.Skybox);
+            GameDirector.Actors.Add(skybox.Id, skybox);
+
+            TileMap world = new TileMap(128, 128)
+            { 
+                MapTerrain = new List<Enum>() { 
+                    Terrain.WATER, Terrain.SAND, Terrain.ROCK 
+                } 
+            };
+            world.Generate();
+
+            GameDirector.Actors.Add(world.Id, world);
 
             //Load UI
             FPSCounter counter = new FPSCounter() { Font =  GameDirector.Assets.Fonts[Misc.PRIMARY] };
             Cursor cursor = new Cursor() { Texture = GameDirector.Assets.Textures[UI.CURSOR], Color = GameDirector.Assets.Colors[UI.CURSOR] };
 
+            List<VertexPositionNormalTexture> selectorArea = new List<VertexPositionNormalTexture>();
+            foreach (KeyValuePair<Enum, TileLayer> layer in world.Layers)
+            {
+                selectorArea.AddRange(layer.Value.Vertices);
+            }
+            Selector selector = new Selector(selectorArea.ToArray(), new Color(Color.DarkOrange, 0.002f));
+
             GameDirector.UI.Add(cursor);
             GameDirector.UI.Add(counter);
+            GameDirector.UI.Add(selector);
         }
 
         /// <summary>
@@ -114,17 +138,15 @@ namespace Badlands.Core
                 Exit();
            
             //Update Actors
-            for (var a = 0; a < GameDirector.Actors.Count; a++)
+            foreach (KeyValuePair<Guid, BaseActor> actor in GameDirector.Actors)
             {
-                GameDirector.Actors[a].Update(gameTime);
+                actor.Value.Update(gameTime);
             }
             //Update UI
             for (var u = 0; u < GameDirector.UI.Count; u++)
             {
                 GameDirector.UI[u].Update(gameTime);
             }
-
-
 
             base.Update(gameTime);
         }
@@ -135,13 +157,17 @@ namespace Badlands.Core
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);         
+            GraphicsDevice.Clear(Color.Black);         
             
             //Draw Actors
-            for (var a = 0; a < GameDirector.Actors.Count; a++ )
+            foreach (KeyValuePair<Guid, BaseActor> actor in GameDirector.Actors)
             {
-                GameDirector.Actors[a].Draw(gameTime);
+                actor.Value.Draw(gameTime);
             }
+
+            test.Draw(Matrix.Identity, GameDirector.Camera.View, GameDirector.Camera.Projection);
+            //DrawModel(test, Matrix.Identity, GameDirector.Camera.View, GameDirector.Camera.Projection);
+
             //Draw UI
             GameDirector.SpriteBatch.Begin();
             for (var u = 0; u < GameDirector.UI.Count; u++)
@@ -150,19 +176,35 @@ namespace Badlands.Core
             }
             GameDirector.SpriteBatch.End();
 
-            //string camerapos = string.Format("camera position: {0}", GameDirector.Camera.Position.ToString());
-            
-            //GameDirector.SpriteBatch.Draw(GameDirector.Assets.Textures[UI.CURSOR], cursorPos, Color.Red);
 
-            //GameDirector.SpriteBatch.DrawString(coreFont, camerapos, new Vector2(1, 15), Color.Black);
-            //GameDirector.SpriteBatch.DrawString(coreFont, camerapos, new Vector2(0, 15), Color.White);
+            //Debug
+            string camerapos = string.Format("camera position: {0}", GameDirector.Camera.Position.ToString());
+            GameDirector.SpriteBatch.Begin();
+            GameDirector.SpriteBatch.DrawString(GameDirector.Assets.Fonts[Misc.PRIMARY], camerapos, new Vector2(1, 15), Color.Black);
+            GameDirector.SpriteBatch.DrawString(GameDirector.Assets.Fonts[Misc.PRIMARY], camerapos, new Vector2(0, 15), Color.Red);
 
-            //GameDirector.SpriteBatch.DrawString(coreFont, this._pickedTile, new Vector2(1, 30), Color.Black);
-            //GameDirector.SpriteBatch.DrawString(coreFont, this._pickedTile, new Vector2(0, 30), Color.White);
-
+            //GameDirector.SpriteBatch.DrawString(GameDirector.Assets.Fonts[Misc.PRIMARY], this._pickedTile, new Vector2(1, 30), Color.Black);
+            //GameDirector.SpriteBatch.DrawString(GameDirector.Assets.Fonts[Misc.PRIMARY], this._pickedTile, new Vector2(0, 30), Color.White);
+            GameDirector.SpriteBatch.End();
             
 
             base.Draw(gameTime);
+        }
+
+        private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World = world;
+                    effect.View = view;
+                    effect.Projection = projection;
+                }
+
+                mesh.Draw();
+            }
         }
     }
 }

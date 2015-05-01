@@ -34,7 +34,7 @@ namespace SSGL.Helper
             frameCounter++;
             string fps = string.Format("fps: {0} mem : {1}", frameRate, GC.GetTotalMemory(false));
             GameDirector.SpriteBatch.DrawString(Font, fps, new Vector2(1, 1), Color.Black);
-            GameDirector.SpriteBatch.DrawString(Font, fps, new Vector2(0, 0), Color.White);
+            GameDirector.SpriteBatch.DrawString(Font, fps, new Vector2(0, 0), Color.YellowGreen);
         }
     }
 }

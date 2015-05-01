@@ -13,33 +13,22 @@ namespace SSGL.Entity.Skybox
 {
     public class Skybox : BaseActor
     {
-        public VertexBuffer Buffer { get; set; }
-        public List<Vector3> Positions { get; set; }
+        private List<Vector3> _position { get; set; }
+        private List<List<VertexPositionNormalTexture>> _sides { get; set; }
+        private float _size;
 
-        protected GraphicsDevice _device;
-        protected List<BasicEffect> _effects;
-        protected List<List<VertexPositionNormalTexture>> _sides { get; set; }
-        protected DepthStencilState _depthState;
-        protected Matrix _worldTranslation = Matrix.Identity;
-        protected Matrix _worldRotation = Matrix.Identity;
-        protected Matrix _worldScale = Matrix.Identity;
-        protected float _size;
-        protected Camera _camera;
-
-        public Skybox(GraphicsDevice device, Camera camera, List<Texture2D> textures = null)
+        public Skybox(List<Texture2D> textures = null)
         {
-            this._device = device;
             this._effects = new List<BasicEffect>();
             this._sides = new List<List<VertexPositionNormalTexture>>();
-            this._size = camera.Far;
-            this._camera = camera;
+            this._size = GameDirector.Camera.Far;
 
             BasicEffect effect;
             if (textures != null)
             {
                 foreach (Texture2D texture in textures)
                 {
-                    effect = new BasicEffect(device);
+                    effect = new BasicEffect(GameDirector.Device);
                     effect.Texture = texture;
                     effect.TextureEnabled = true;
                     this._effects.Add(effect);
@@ -48,39 +37,33 @@ namespace SSGL.Entity.Skybox
             }
             else
             {
-                effect = new BasicEffect(device);
+                effect = new BasicEffect(GameDirector.Device);
                 effect.Texture = GameDirector.Assets.Textures[Misc.DEBUG];
                 effect.TextureEnabled = true;
                 this._effects.Add(effect);
             }
 
-            Positions = new List<Vector3>();
-
-            _depthState = new DepthStencilState();
-            _depthState.DepthBufferEnable = true; /* Enable the depth buffer */
-            _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
-
             //Base Positions(centered on origin)
-            Positions = new List<Vector3>();
+            _position = new List<Vector3>();
             //FRONT
             //top left
-            Positions.Add(new Vector3(-0.5f, 0.5f, 0.5f));
+            _position.Add(new Vector3(-0.5f, 0.5f, 0.5f));
             //top right
-            Positions.Add(new Vector3(0.5f, 0.5f, 0.5f));
+            _position.Add(new Vector3(0.5f, 0.5f, 0.5f));
             //bottom right
-            Positions.Add(new Vector3(0.5f, -0.5f, 0.5f));
+            _position.Add(new Vector3(0.5f, -0.5f, 0.5f));
             //bottom left
-            Positions.Add(new Vector3(-0.5f, -0.5f, 0.5f));
+            _position.Add(new Vector3(-0.5f, -0.5f, 0.5f));
 
             //BACK
             //top left
-            Positions.Add(new Vector3(-0.5f, 0.5f, -0.5f));
+            _position.Add(new Vector3(-0.5f, 0.5f, -0.5f));
             //top right
-            Positions.Add(new Vector3(0.5f, 0.5f, -0.5f));
+            _position.Add(new Vector3(0.5f, 0.5f, -0.5f));
             //bottom right
-            Positions.Add(new Vector3(0.5f, -0.5f, -0.5f));
+            _position.Add(new Vector3(0.5f, -0.5f, -0.5f));
             //bottom left
-            Positions.Add(new Vector3(-0.5f, -0.5f, -0.5f));
+            _position.Add(new Vector3(-0.5f, -0.5f, -0.5f));
 
             this.Load();
         }
@@ -95,58 +78,58 @@ namespace SSGL.Entity.Skybox
             List<VertexPositionNormalTexture> bottom = new List<VertexPositionNormalTexture>();
 
             //FRONT
-            front.Add(new VertexPositionNormalTexture(Positions[1], Vector3.Backward, new Vector2(0, 0)));
-            front.Add(new VertexPositionNormalTexture(Positions[0], Vector3.Backward, new Vector2(1, 0)));
-            front.Add(new VertexPositionNormalTexture(Positions[3], Vector3.Backward, new Vector2(1, 1)));
+            front.Add(new VertexPositionNormalTexture(_position[1], Vector3.Backward, new Vector2(0, 0)));
+            front.Add(new VertexPositionNormalTexture(_position[0], Vector3.Backward, new Vector2(1, 0)));
+            front.Add(new VertexPositionNormalTexture(_position[3], Vector3.Backward, new Vector2(1, 1)));
 
-            front.Add(new VertexPositionNormalTexture(Positions[3], Vector3.Backward, new Vector2(1, 1)));
-            front.Add(new VertexPositionNormalTexture(Positions[2], Vector3.Backward, new Vector2(0, 1)));
-            front.Add(new VertexPositionNormalTexture(Positions[1], Vector3.Backward, new Vector2(0, 0)));
+            front.Add(new VertexPositionNormalTexture(_position[3], Vector3.Backward, new Vector2(1, 1)));
+            front.Add(new VertexPositionNormalTexture(_position[2], Vector3.Backward, new Vector2(0, 1)));
+            front.Add(new VertexPositionNormalTexture(_position[1], Vector3.Backward, new Vector2(0, 0)));
 
             //BACK
-            back.Add(new VertexPositionNormalTexture(Positions[4], Vector3.Forward, new Vector2(0, 0)));
-            back.Add(new VertexPositionNormalTexture(Positions[5], Vector3.Forward, new Vector2(1, 0)));
-            back.Add(new VertexPositionNormalTexture(Positions[6], Vector3.Forward, new Vector2(1, 1)));
+            back.Add(new VertexPositionNormalTexture(_position[4], Vector3.Forward, new Vector2(0, 0)));
+            back.Add(new VertexPositionNormalTexture(_position[5], Vector3.Forward, new Vector2(1, 0)));
+            back.Add(new VertexPositionNormalTexture(_position[6], Vector3.Forward, new Vector2(1, 1)));
 
-            back.Add(new VertexPositionNormalTexture(Positions[6], Vector3.Forward, new Vector2(1, 1)));
-            back.Add(new VertexPositionNormalTexture(Positions[7], Vector3.Forward, new Vector2(0, 1)));
-            back.Add(new VertexPositionNormalTexture(Positions[4], Vector3.Forward, new Vector2(0, 0)));
+            back.Add(new VertexPositionNormalTexture(_position[6], Vector3.Forward, new Vector2(1, 1)));
+            back.Add(new VertexPositionNormalTexture(_position[7], Vector3.Forward, new Vector2(0, 1)));
+            back.Add(new VertexPositionNormalTexture(_position[4], Vector3.Forward, new Vector2(0, 0)));
 
             //LEFT
-            left.Add(new VertexPositionNormalTexture(Positions[0], Vector3.Left, new Vector2(0, 0)));
-            left.Add(new VertexPositionNormalTexture(Positions[4], Vector3.Left, new Vector2(1, 0)));
-            left.Add(new VertexPositionNormalTexture(Positions[7], Vector3.Left, new Vector2(1, 1)));
+            left.Add(new VertexPositionNormalTexture(_position[0], Vector3.Left, new Vector2(0, 0)));
+            left.Add(new VertexPositionNormalTexture(_position[4], Vector3.Left, new Vector2(1, 0)));
+            left.Add(new VertexPositionNormalTexture(_position[7], Vector3.Left, new Vector2(1, 1)));
 
-            left.Add(new VertexPositionNormalTexture(Positions[7], Vector3.Left, new Vector2(1, 1)));
-            left.Add(new VertexPositionNormalTexture(Positions[3], Vector3.Left, new Vector2(0, 1)));
-            left.Add(new VertexPositionNormalTexture(Positions[0], Vector3.Left, new Vector2(0, 0)));
+            left.Add(new VertexPositionNormalTexture(_position[7], Vector3.Left, new Vector2(1, 1)));
+            left.Add(new VertexPositionNormalTexture(_position[3], Vector3.Left, new Vector2(0, 1)));
+            left.Add(new VertexPositionNormalTexture(_position[0], Vector3.Left, new Vector2(0, 0)));
 
             //RIGHT
-            right.Add(new VertexPositionNormalTexture(Positions[5], Vector3.Right, new Vector2(0, 0)));
-            right.Add(new VertexPositionNormalTexture(Positions[1], Vector3.Right, new Vector2(1, 0)));
-            right.Add(new VertexPositionNormalTexture(Positions[2], Vector3.Right, new Vector2(1, 1)));
+            right.Add(new VertexPositionNormalTexture(_position[5], Vector3.Right, new Vector2(0, 0)));
+            right.Add(new VertexPositionNormalTexture(_position[1], Vector3.Right, new Vector2(1, 0)));
+            right.Add(new VertexPositionNormalTexture(_position[2], Vector3.Right, new Vector2(1, 1)));
 
-            right.Add(new VertexPositionNormalTexture(Positions[2], Vector3.Right, new Vector2(1, 1)));
-            right.Add(new VertexPositionNormalTexture(Positions[6], Vector3.Right, new Vector2(0, 1)));
-            right.Add(new VertexPositionNormalTexture(Positions[5], Vector3.Right, new Vector2(0, 0)));
+            right.Add(new VertexPositionNormalTexture(_position[2], Vector3.Right, new Vector2(1, 1)));
+            right.Add(new VertexPositionNormalTexture(_position[6], Vector3.Right, new Vector2(0, 1)));
+            right.Add(new VertexPositionNormalTexture(_position[5], Vector3.Right, new Vector2(0, 0)));
 
             //TOP
-            top.Add(new VertexPositionNormalTexture(Positions[5], Vector3.Up, new Vector2(0, 0)));
-            top.Add(new VertexPositionNormalTexture(Positions[4], Vector3.Up, new Vector2(1, 0)));
-            top.Add(new VertexPositionNormalTexture(Positions[0], Vector3.Up, new Vector2(1, 1)));
+            top.Add(new VertexPositionNormalTexture(_position[5], Vector3.Up, new Vector2(0, 0)));
+            top.Add(new VertexPositionNormalTexture(_position[4], Vector3.Up, new Vector2(1, 0)));
+            top.Add(new VertexPositionNormalTexture(_position[0], Vector3.Up, new Vector2(1, 1)));
 
-            top.Add(new VertexPositionNormalTexture(Positions[0], Vector3.Up, new Vector2(1, 1)));
-            top.Add(new VertexPositionNormalTexture(Positions[1], Vector3.Up, new Vector2(0, 1)));
-            top.Add(new VertexPositionNormalTexture(Positions[5], Vector3.Up, new Vector2(0, 0)));
+            top.Add(new VertexPositionNormalTexture(_position[0], Vector3.Up, new Vector2(1, 1)));
+            top.Add(new VertexPositionNormalTexture(_position[1], Vector3.Up, new Vector2(0, 1)));
+            top.Add(new VertexPositionNormalTexture(_position[5], Vector3.Up, new Vector2(0, 0)));
 
             //BOTTOM
-            bottom.Add(new VertexPositionNormalTexture(Positions[2], Vector3.Down, new Vector2(0, 0)));
-            bottom.Add(new VertexPositionNormalTexture(Positions[3], Vector3.Down, new Vector2(1, 0)));
-            bottom.Add(new VertexPositionNormalTexture(Positions[7], Vector3.Down, new Vector2(1, 1)));
+            bottom.Add(new VertexPositionNormalTexture(_position[2], Vector3.Down, new Vector2(0, 0)));
+            bottom.Add(new VertexPositionNormalTexture(_position[3], Vector3.Down, new Vector2(1, 0)));
+            bottom.Add(new VertexPositionNormalTexture(_position[7], Vector3.Down, new Vector2(1, 1)));
 
-            bottom.Add(new VertexPositionNormalTexture(Positions[7], Vector3.Down, new Vector2(1, 1)));
-            bottom.Add(new VertexPositionNormalTexture(Positions[6], Vector3.Down, new Vector2(0, 1)));
-            bottom.Add(new VertexPositionNormalTexture(Positions[2], Vector3.Down, new Vector2(0, 0)));
+            bottom.Add(new VertexPositionNormalTexture(_position[7], Vector3.Down, new Vector2(1, 1)));
+            bottom.Add(new VertexPositionNormalTexture(_position[6], Vector3.Down, new Vector2(0, 1)));
+            bottom.Add(new VertexPositionNormalTexture(_position[2], Vector3.Down, new Vector2(0, 0)));
 
             this._sides.Add(front);
             this._sides.Add(back);
@@ -155,14 +138,14 @@ namespace SSGL.Entity.Skybox
             this._sides.Add(top);
             this._sides.Add(bottom);
 
-            this._worldTranslation = Matrix.CreateTranslation(this._camera.Position);
+            this._worldTranslation = Matrix.CreateTranslation(GameDirector.Camera.Position);
             this._worldScale = Matrix.CreateScale(this._size);
 
         }
 
         public override void Update(GameTime gameTime)
         {
-            this._worldTranslation = Matrix.CreateTranslation(this._camera.Position);
+            this._worldTranslation = Matrix.CreateTranslation(GameDirector.Camera.Position);
             this._worldScale = Matrix.CreateScale(this._size);
 
             base.Update(gameTime);
@@ -175,32 +158,27 @@ namespace SSGL.Entity.Skybox
             {
                 currentEffect = this._effects.Count == this._sides.Count ? this._effects[i] : this._effects[0];
                 currentEffect.World = this._worldScale * this._worldRotation * this._worldTranslation;
-                currentEffect.View = this._camera.View;
-                currentEffect.Projection = this._camera.Projection;
-
-                RasterizerState rasterizerState = new RasterizerState();
-                //rasterizerState.CullMode = CullMode.None;
-                this._device.RasterizerState = rasterizerState;
+                currentEffect.View = GameDirector.Camera.View;
+                currentEffect.Projection = GameDirector.Camera.Projection;
+                //Razterization
+                GameDirector.Device.RasterizerState = this._rasterizerState;
 
                 foreach (EffectPass pass in currentEffect.CurrentTechnique.Passes)
                 {
                     pass.Apply();
-                    using (Buffer = new VertexBuffer(this._device, typeof(VertexPositionNormalTexture), this._sides[i].Count, BufferUsage.WriteOnly))
+                    using (Buffer = new VertexBuffer(GameDirector.Device, typeof(VertexPositionNormalTexture), this._sides[i].Count, BufferUsage.WriteOnly))
                     {
                         //load buffer
                         Buffer.SetData<VertexPositionNormalTexture>(this._sides[i].ToArray());
-
                         //sendt vertex buffer to device
-                        this._device.SetVertexBuffer(Buffer);
+                        GameDirector.Device.SetVertexBuffer(Buffer);
                         //use depth buffer when drawing a shape
-                        this._device.DepthStencilState = this._depthState;
-
+                        GameDirector.Device.DepthStencilState = this._depthState;
                         // Draw the primitives from the vertex buffer to the device as triangles
-                        this._device.DrawPrimitives(PrimitiveType.TriangleList, 0, this._sides[i].Count / 3);
+                        GameDirector.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, this._sides[i].Count / 3);
                     }
                 }
             }
-            base.Draw(gameTime);
         }
     }
 }

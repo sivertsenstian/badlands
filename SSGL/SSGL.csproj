@@ -49,7 +49,7 @@
     <Compile Include="Entity\Skybox\Skybox.cs" />
     <Compile Include="Entity\Actor\BaseActor.cs" />
     <Compile Include="Entity\Map\BaseMap.cs" />
-    <Compile Include="Entity\Tile\BaseTileMap.cs" />
+    <Compile Include="Entity\Tile\TileMap.cs" />
     <Compile Include="Core\GameAssets.cs" />
     <Compile Include="Entity\Actor\IActor.cs" />
     <Compile Include="Entity\IEntity.cs" />
@@ -59,7 +59,9 @@
     <Compile Include="Entity\Tile\TileChunk.cs" />
     <Compile Include="Entity\Tile\TileLayer.cs" />
     <Compile Include="Entity\UI\BaseUI.cs" />
-    <Compile Include="Helper\Cursor.cs" />
+    <Compile Include="Entity\UI\Cursor.cs" />
+    <Compile Include="Entity\UI\Selector.cs" />
+    <Compile Include="Helper\Default.cs" />
     <Compile Include="Helper\Enum\Misc.cs" />
     <Compile Include="Helper\Enum\Terrain.cs" />
     <Compile Include="Helper\Enum\UI.cs" />

@@ -34,7 +34,6 @@ namespace SSGL.Core
 
             //Pitch camera a bit to get a more top-down view
             this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * 75));
-            this._up = Vector3.Transform(this._up, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * 75));
 
             this._speed = 20.0f;
             this.CreateLookAt();
@@ -81,11 +80,9 @@ namespace SSGL.Core
 
             // Yaw rotation
             if (Keyboard.GetState().IsKeyDown(Keys.E))
-                //this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, (-MathHelper.PiOver4 / 180) * this._speed / 5));
-                this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, -(this._speed / 1000)));
+                this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, (-MathHelper.PiOver4 / 180) * this._speed / 5));
             if (Keyboard.GetState().IsKeyDown(Keys.Q))
-                //this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, (MathHelper.PiOver4 / 180) * this._speed / 5));
-                this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, this._speed / 1000));
+                this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, (MathHelper.PiOver4 / 180) * this._speed / 5));
 
             //Mouse
             // Zoom Out/In
@@ -97,16 +94,15 @@ namespace SSGL.Core
             
             if (Mouse.GetState( ).RightButton == ButtonState.Pressed)
             {
-
             }
 
             if(Mouse.GetState( ).MiddleButton == ButtonState.Pressed){
+                //Yaw
+                float yawAngle = (-MathHelper.PiOver4 / 150) * (Mouse.GetState().X - this._previousMouseState.X);
+                this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(this._up, yawAngle));
+
                 //Pitch
                 this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * (Mouse.GetState().Y - this._previousMouseState.Y)));
-                this._up = Vector3.Transform(this._up, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * (Mouse.GetState().Y - this._previousMouseState.Y)));
-
-                //Yaw
-                this._direction = Vector3.Transform(this._direction,Matrix.CreateFromAxisAngle(this._up, (-MathHelper.PiOver4 / 150) * (Mouse.GetState( ).X - this._previousMouseState.X)));
             }
             else
             {
