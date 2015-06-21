@@ -72,6 +72,9 @@
     <Compile Include="Helper\Message\Message.cs" />
     <Compile Include="Helper\Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Voxel\Block.cs" />
+    <Compile Include="Voxel\Chunk.cs" />
+    <Compile Include="Voxel\ChunkManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

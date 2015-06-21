@@ -21,7 +21,7 @@ namespace SSGL.Entity.Skybox
         {
             this._effects = new List<BasicEffect>();
             this._sides = new List<List<VertexPositionNormalTexture>>();
-            this._size = GameDirector.Camera.Far * 1.350f;
+            this._size = GameDirector.Camera.Far * 1.15f;
 
             BasicEffect effect;
             if (textures != null)

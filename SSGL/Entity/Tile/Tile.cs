@@ -36,14 +36,14 @@ namespace SSGL.Entity.Tile
 
             var addVector = new Vector3(pos.X * size, pos.Y * size, pos.Z * size);
             //First Triangle
-            verts.Add(new VertexPositionNormalTexture((Default.Position[0] * size) + addVector, Vector3.Up, new Vector2(0, 0)));
-            verts.Add(new VertexPositionNormalTexture((Default.Position[1] * size) + addVector, Vector3.Up, new Vector2(1, 0)));
-            verts.Add(new VertexPositionNormalTexture((Default.Position[2] * size) + addVector, Vector3.Up, new Vector2(1, 1)));
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[0] * size) + addVector, Vector3.Up, new Vector2(0, 0)));
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[1] * size) + addVector, Vector3.Up, new Vector2(1, 0)));
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[2] * size) + addVector, Vector3.Up, new Vector2(1, 1)));
 
-            //Second Triangle
-            verts.Add(new VertexPositionNormalTexture((Default.Position[2] * size) + addVector, Vector3.Up, new Vector2(1, 1)));
-            verts.Add(new VertexPositionNormalTexture((Default.Position[3] * size) + addVector, Vector3.Up, new Vector2(0, 1)));
-            verts.Add(new VertexPositionNormalTexture((Default.Position[0] * size) + addVector, Vector3.Up, new Vector2(0, 0)));
+            ////Second Triangle
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[2] * size) + addVector, Vector3.Up, new Vector2(1, 1)));
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[3] * size) + addVector, Vector3.Up, new Vector2(0, 1)));
+            //verts.Add(new VertexPositionNormalTexture((Default.Position[0] * size) + addVector, Vector3.Up, new Vector2(0, 0)));
 
             //Console.WriteLine(" ----------------------- ");
             //for (int i = 0; i < verts.Count; i++)

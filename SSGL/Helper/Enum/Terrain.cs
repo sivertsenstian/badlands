@@ -7,9 +7,11 @@ namespace SSGL.Helper.Enum
 {
     public enum Terrain
     {
-        SAND,
+        TEXTURE,
         WATER,
-        ROCK
+        SAND,
+        DIRT,
+        GRASS
     }
     
 }

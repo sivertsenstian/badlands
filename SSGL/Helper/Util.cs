@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SSGL.Helper.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,52 @@ namespace SSGL.Helper
 {
     public static class Util
     {
+
+        public static Vector2[] TerrainTextureCoordinates(Terrain terrain){
+            Vector2[] coords = new Vector2[4];
+            Vector2 TextureTopLeft = Vector2.Zero;
+            Vector2 TextureBottomLeft = Vector2.Zero;
+            Vector2 TextureTopRight = Vector2.Zero;
+            Vector2 TextureBottomRight = Vector2.Zero;
+            
+            //TODO: Possible to calculate this ?
+            if (terrain == Terrain.WATER) //TOP LEFT
+            {
+                TextureTopLeft = new Vector2(0.5f, 0);
+                TextureBottomLeft = new Vector2(0.5f, 0.5f);
+                TextureTopRight = new Vector2(0, 0);
+                TextureBottomRight = new Vector2(0, 0.5f);
+            }
+            else if (terrain == Terrain.SAND) //TOP RIGHT
+            {
+                TextureTopLeft = new Vector2(1.0f, 0);
+                TextureBottomLeft = new Vector2(1.0f, 0.5f);
+                TextureTopRight = new Vector2(0.5f, 0);
+                TextureBottomRight = new Vector2(0.5f, 0.5f);
+            }
+            else if (terrain == Terrain.GRASS) //BOTTOM RIGHT
+            {
+                TextureTopLeft = new Vector2(1.0f, 0.5f);
+                TextureBottomLeft = new Vector2(1.0f, 1.0f);
+                TextureTopRight = new Vector2(0.5f, 0.5f);
+                TextureBottomRight = new Vector2(0.5f, 1.0f);
+            }
+            else if (terrain == Terrain.DIRT) //BOTTOM LEFT
+            {
+                TextureTopLeft = new Vector2(0.5f, 0.5f);
+                TextureBottomLeft = new Vector2(0.5f, 1.0f);
+                TextureTopRight = new Vector2(0, 0.5f);
+                TextureBottomRight = new Vector2(0, 1.0f);
+            }
+
+            coords[0] = TextureTopLeft;
+            coords[1] = TextureBottomLeft;
+            coords[2] = TextureTopRight;
+            coords[3] = TextureBottomRight;
+
+            return coords;
+        }
+
         public static bool ListsAreEqual<T>(IEnumerable<T> list1, IEnumerable<T> list2)
         {
             var cnt = new Dictionary<T, int>();
