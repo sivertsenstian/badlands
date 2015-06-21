@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 using SSGL.Core;
 using SSGL.Entity.Actor;
 using SSGL.Entity.Skybox;
-using SSGL.Entity.Tile;
 using SSGL.Entity.UI;
 using SSGL.Helper;
 using SSGL.Helper.Enum;
@@ -84,7 +83,7 @@ namespace Badlands.Core
             GameDirector.Assets.Fonts.Add(Misc.PRIMARY, Content.Load<SpriteFont>("Font/Core"));
 
             //Load Skybox
-            string skyboxType = "Mars"; //Mars, Grass, Mianmar
+            string skyboxType = "Mianmar"; //Mars, Grass, Mianmar
             GameDirector.Assets.Skybox = new List<Texture2D> {
                 Content.Load<Texture2D>("Texture/Skybox/" + skyboxType + "/Front"),
                 Content.Load<Texture2D>("Texture/Skybox/" + skyboxType + "/Back"),
@@ -95,8 +94,8 @@ namespace Badlands.Core
             };
 
             //Load Actors
-            //Skybox skybox = new Skybox(GameDirector.Assets.Skybox);
-            //GameDirector.Actors.Add(skybox.Id, skybox);
+            Skybox skybox = new Skybox(GameDirector.Assets.Skybox);
+            GameDirector.Actors.Add(skybox.Id, skybox);
 
             //Load UI
             FPSCounter counter = new FPSCounter() { Font =  GameDirector.Assets.Fonts[Misc.PRIMARY] };
@@ -152,10 +151,10 @@ namespace Badlands.Core
             GraphicsDevice.Clear(Default.ClearColor);         
             
             //Draw Actors
-            //foreach (KeyValuePair<Guid, BaseActor> actor in GameDirector.Actors)
-            //{
-            //    actor.Value.Draw(gameTime);
-            //}
+            foreach (KeyValuePair<Guid, BaseActor> actor in GameDirector.Actors)
+            {
+                actor.Value.Draw(gameTime);
+            }
 
             //Draw UI
             GameDirector.SpriteBatch.Begin();

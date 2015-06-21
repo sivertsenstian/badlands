@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SSGL.Core;
-using SSGL.Entity.Tile;
 using SSGL.Entity.UI;
 using SSGL.Helper;
 using SSGL.Helper.Enum;
