@@ -31,6 +31,7 @@ namespace SSGL.Voxel
 
             _worldMatrix = position.HasValue ? Matrix.CreateTranslation(position.Value) : Matrix.Identity;
             // Create the blocks
+            Random rand = new Random();
             _blocks = new Block[CHUNK_SIZE][][];
             for (int i = 0; i < CHUNK_SIZE; i++)
             {
@@ -44,6 +45,7 @@ namespace SSGL.Voxel
                     {
                         type = j < 3 ? Terrain.WATER : j < 5 ? Terrain.SAND : j < 7 ? Terrain.DIRT : Terrain.GRASS;
                         _blocks[i][j][k] = new Block() { Type = type };
+//                        _blocks[i][j][k] = new Block() { Type = type, IsActive = rand.Next(100) > 40 ? true : false };
                     }
                 }
             }
@@ -61,13 +63,15 @@ namespace SSGL.Voxel
                 {
                     for (int z = 0; z < CHUNK_SIZE; z++)
                     {
-                        if (_blocks[x][y][z].IsActive() == false)
+                        if (!_blocks[x][y][z].IsActive)
                         {
                             // Don't create triangle data for inactive blocks
                             continue;
                         }
-
-                        this.createBlock(x, y, z, _blocks[x][y][z].Type);
+                        //if ((x == CHUNK_SIZE - 1 || x == 0) || y == CHUNK_SIZE - 1 || (z == CHUNK_SIZE - 1 || z == 0))
+                        //{
+                            this.createBlock(x, y, z, _blocks[x][y][z].Type);
+                        //}
                     }
                 }
             }

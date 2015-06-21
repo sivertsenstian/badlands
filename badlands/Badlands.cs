@@ -23,7 +23,7 @@ namespace Badlands.Core
         GraphicsDeviceManager _graphics;
 
         //TEST CUBE
-        Chunk chunk1, chunk2, chunk3, chunk4;
+        ChunkManager chunkManager;
 
         public Badlands()
             : base()
@@ -105,18 +105,8 @@ namespace Badlands.Core
             GameDirector.UI.Add(cursor);
             GameDirector.UI.Add(counter);
 
-            //TEST CUBE
-            chunk1 = new Chunk(new Vector3(0, 0, 0));
-            chunk1.CreateMesh();
-
-            chunk2 = new Chunk(new Vector3(0, 0, 8));
-            chunk2.CreateMesh();
-
-            chunk3 = new Chunk(new Vector3(8, 0, 0));
-            chunk3.CreateMesh();
-
-            chunk4 = new Chunk(new Vector3(8, 0, 8));
-            chunk4.CreateMesh();
+            chunkManager = new ChunkManager();
+            chunkManager.BuildChunks(8, 8);
         }
 
         /// <summary>
@@ -184,10 +174,7 @@ namespace Badlands.Core
 
             GameDirector.SpriteBatch.End();
 
-            chunk1.Render();
-            chunk2.Render();
-            chunk3.Render();
-            chunk4.Render();
+            chunkManager.Render();
 
             base.Draw(gameTime);
         }

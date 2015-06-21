@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace SSGL.Voxel
         public List<Chunk> ChunkVisibilityList;
         public List<Chunk> ChunkSetupList;
 
-        ChunkManager()
+        public ChunkManager()
         {
             Chunks = new List<Chunk>();
             ChunkLoadList = new List<Chunk>();
@@ -22,6 +23,27 @@ namespace SSGL.Voxel
             ChunkVisibilityList = new List<Chunk>();
             ChunkRenderList = new List<Chunk>();
             ChunkSetupList = new List<Chunk>();
+        }
+
+        public void BuildChunks(int x, int y){
+            int CHUNK_SIZE = 8;
+            Chunk chunk;
+            for(int i = 0; i < x; i++){
+                for(int j = 0; j < y; j++){
+                    chunk = new Chunk(new Vector3(i * CHUNK_SIZE, 0, j * CHUNK_SIZE));
+                    chunk.CreateMesh();
+                    Chunks.Add(chunk);
+                }
+            }
+        }
+
+
+        public void Render() {
+
+            foreach (Chunk chunk in Chunks)
+            {
+                chunk.Render();
+            }
         }
     }
 }
