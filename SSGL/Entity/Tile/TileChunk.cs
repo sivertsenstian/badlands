@@ -6,14 +6,14 @@ using System.Text;
 
 namespace SSGL.Entity.Tile
 {
-    public class TileChunk
+    public class TileChunk<T>
     {
-        public List<Tile> Tiles { get; set; }
+        public List<T> Tiles { get; set; }
         public BoundingBox BoundingBox { get; set; }
 
         public TileChunk()
         {
-            Tiles = new List<Tile>();
+            Tiles = new List<T>();
         }
     }
 }

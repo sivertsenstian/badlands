@@ -11,13 +11,13 @@ namespace SSGL.Entity.Tile
 {
     public class TileLayer : BaseActor
     {
-        public List<TileChunk> Chunks { get; set; }
+        public List<TileChunk<Tile>> Chunks { get; set; }
         public BoundingBox BoundingBox { get; set; }
         public Enum Texture { get; set; }
 
         public TileLayer(Enum texture)
         {
-            Chunks = new List<TileChunk>();
+            Chunks = new List<TileChunk<Tile>>();
             Texture = texture;
 
             BasicEffect effect = new BasicEffect(GameDirector.Device);

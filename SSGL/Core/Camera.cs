@@ -35,7 +35,7 @@ namespace SSGL.Core
             //Pitch camera a bit to get a more top-down view
             this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * 75));
 
-            this._speed = 20.0f;
+            this._speed = 2.0f;
             this.CreateLookAt();
         }
 
@@ -87,9 +87,9 @@ namespace SSGL.Core
             //Mouse
             // Zoom Out/In
             if (Mouse.GetState().ScrollWheelValue > this._previousMouseState.ScrollWheelValue)
-                Position += this._direction * this._speed * 5;
+                Position += this._direction * this._speed * 5.0f;
             if (Mouse.GetState().ScrollWheelValue < this._previousMouseState.ScrollWheelValue)
-                Position -= this._direction * this._speed * 5;
+                Position -= this._direction * this._speed * 5.0f;
             
             
             if (Mouse.GetState( ).RightButton == ButtonState.Pressed)
