@@ -105,7 +105,7 @@ namespace Badlands.Core
             GameDirector.UI.Add(counter);
 
             chunkManager = new ChunkManager();
-            chunkManager.BuildChunks(8, 8);
+            chunkManager.BuildChunks(2, 2);
         }
 
         /// <summary>
@@ -139,6 +139,8 @@ namespace Badlands.Core
                 GameDirector.UI[u].Update(gameTime);
             }
 
+            chunkManager.Update(gameTime);
+            
             base.Update(gameTime);
         }
 
