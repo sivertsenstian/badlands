@@ -12,69 +12,104 @@ namespace SSGL.Voxel
 {
     public class Chunk
     {
-        private const int CHUNK_SIZE = 8;
-        private Block[][][] _blocks;
+        private Block[,,] _blocks;
         private List<VertexPositionNormalTexture> _vertices;
         private List<int> _indices;
         private BasicEffect _chunkEffect;
         private Matrix _worldMatrix;
 
+        public const int CHUNK_SIZE = 8;
         public bool IsVisible { get; set; }
         public bool IsLoaded { get; set; }
         public bool IsSetup { get; set; }
+        public Vector3 Position { get; set; }
+        public BoundingSphere Bounds { get; set; }
 
-        public Chunk(Vector3? position = null)
+        public Chunk(Vector3 position)
         {
-            IsVisible = true;
+            this.Position = position;
+
+            this.IsVisible = true;
+            _worldMatrix = Matrix.CreateTranslation(this.Position);
+
+            float c_offset = (Chunk.CHUNK_SIZE * Block.RENDER_SIZE) - Block.RENDER_SIZE;
+            Vector3 chunkCenter = this.Position + new Vector3(c_offset, c_offset, c_offset);
+            Bounds = new BoundingSphere(chunkCenter, Chunk.CHUNK_SIZE / 2);
+        }
+
+        public void Update(GameTime gameTime)
+        {
+
+        }
+
+        public void Unload()
+        {
+            _vertices = null;
+            _indices = null;
+            _chunkEffect = null;
+            _blocks = null;
+
+            this.IsLoaded = false;
+            this.IsSetup = false;
+        }
+        //Loads and creates initial block-data for this chunk
+        public void Load() {
+            _blocks = new Block[CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE];
             //TODO: FIX THE TYPE ASSIGNMENT
             Terrain type;
-
-            _worldMatrix = position.HasValue ? Matrix.CreateTranslation(position.Value) : Matrix.Identity;
             // Create the blocks
-            Random rand = new Random();
-            _blocks = new Block[CHUNK_SIZE][][];
             for (int i = 0; i < CHUNK_SIZE; i++)
             {
-                _blocks[i] = new Block[CHUNK_SIZE][];
-
                 for (int j = 0; j < CHUNK_SIZE; j++)
                 {
-                    _blocks[i][j] = new Block[CHUNK_SIZE];
-                    
                     for (int k = 0; k < CHUNK_SIZE; k++)
                     {
-                        type = j < 3 ? Terrain.WATER : j < 5 ? Terrain.SAND : j < 7 ? Terrain.DIRT : Terrain.GRASS;
-                        _blocks[i][j][k] = new Block() { Type = type };
-//                        _blocks[i][j][k] = new Block() { Type = type, IsActive = rand.Next(100) > 40 ? true : false };
+                        var height = j + Position.Y;
+                        type = height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
+                        _blocks[i, j, k] = new Block() { Type = type };
                     }
                 }
             }
 
+            this.IsLoaded = true;
+            this.IsSetup = false;
+        }
+
+        //Creates the loaded blocks for this chunk
+        //Creates vertices and indices for the chunk-buffer
+        public void Setup() {
             _vertices = new List<VertexPositionNormalTexture>();
             _indices = new List<int>();
             _chunkEffect = new BasicEffect(GameDirector.Device);
-        }
 
-        public void CreateMesh()
-        {
             for (int x = 0; x < CHUNK_SIZE; x++)
             {
                 for (int y = 0; y < CHUNK_SIZE; y++)
                 {
                     for (int z = 0; z < CHUNK_SIZE; z++)
                     {
-                        if (!_blocks[x][y][z].IsActive)
+                        if (!_blocks[x, y, z].IsActive)
                         {
                             // Don't create triangle data for inactive blocks
                             continue;
                         }
-                        //if ((x == CHUNK_SIZE - 1 || x == 0) || y == CHUNK_SIZE - 1 || (z == CHUNK_SIZE - 1 || z == 0))
-                        //{
-                            this.createBlock(x, y, z, _blocks[x][y][z].Type);
-                        //}
+                        this.createBlock(x, y, z, _blocks[x, y, z].Type);
                     }
                 }
             }
+            this.IsSetup = true;
+        }
+
+        //ReLoad ?
+        public void RebuildMesh()
+        {
+            this.Load();
+            this.Setup();
+        }
+
+        public bool ShouldRender()
+        {
+            return true;
         }
 
         public void Render()

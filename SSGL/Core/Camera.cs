@@ -18,8 +18,9 @@ namespace SSGL.Core
         
         private Vector3 _direction;
         private Vector3 _up;
-        private float _speed;
+        private float _speed, _maxSpeed;
         private MouseState _previousMouseState;
+        private const int TIME_PER_TICK = 60;
 
         public Camera(Game game, Vector3 position, Vector3 target, Vector3 up, float near = 1.0f, float far = 1500f)
             : base(game)
@@ -36,6 +37,7 @@ namespace SSGL.Core
             this._direction = Vector3.Transform(this._direction, Matrix.CreateFromAxisAngle(Vector3.Cross(this._up, this._direction), (MathHelper.PiOver4 / 100) * 75));
 
             this._speed = 0.5f;
+            this._maxSpeed = 2 * this._speed;
             this.CreateLookAt();
         }
 
@@ -106,23 +108,23 @@ namespace SSGL.Core
             }
             else
             {
-                //Edge movement
-                if (Mouse.GetState().Y < (Game.Window.ClientBounds.Height * 0.05))
-                {
-                    Vector3 diff = Vector3.Cross(Vector3.Cross(this._up, this._direction), this._up) * this._speed;
-                    diff.Y = 0;
-                    Position += diff;
-                }
-                if (Mouse.GetState().Y > (Game.Window.ClientBounds.Height * 0.95))
-                {
-                    Vector3 diff = Vector3.Cross(Vector3.Cross(this._up, this._direction), this._up) * this._speed;
-                    diff.Y = 0;
-                    Position -= diff;
-                }
-                if (Mouse.GetState().X < (Game.Window.ClientBounds.Width * 0.05))
-                    Position += Vector3.Cross(this._up, this._direction) * this._speed;
-                if (Mouse.GetState().X > (Game.Window.ClientBounds.Width * 0.95))
-                    Position -= Vector3.Cross(this._up, this._direction) * this._speed;
+                ////Edge movement
+                //if (Mouse.GetState().Y < (Game.Window.ClientBounds.Height * 0.05))
+                //{
+                //    Vector3 diff = Vector3.Cross(Vector3.Cross(this._up, this._direction), this._up) * this._speed;
+                //    diff.Y = 0;
+                //    Position += diff;
+                //}
+                //if (Mouse.GetState().Y > (Game.Window.ClientBounds.Height * 0.95))
+                //{
+                //    Vector3 diff = Vector3.Cross(Vector3.Cross(this._up, this._direction), this._up) * this._speed;
+                //    diff.Y = 0;
+                //    Position -= diff;
+                //}
+                //if (Mouse.GetState().X < (Game.Window.ClientBounds.Width * 0.05))
+                //    Position += Vector3.Cross(this._up, this._direction) * this._speed;
+                //if (Mouse.GetState().X > (Game.Window.ClientBounds.Width * 0.95))
+                //    Position -= Vector3.Cross(this._up, this._direction) * this._speed;
             }
 
             // Reset prevMouseState

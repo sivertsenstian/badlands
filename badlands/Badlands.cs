@@ -104,8 +104,7 @@ namespace Badlands.Core
             GameDirector.UI.Add(cursor);
             GameDirector.UI.Add(counter);
 
-            chunkManager = new ChunkManager();
-            chunkManager.BuildChunks(2, 2);
+            chunkManager = new ChunkManager(32);
         }
 
         /// <summary>
@@ -126,7 +125,9 @@ namespace Badlands.Core
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-           
+
+            chunkManager.Update(gameTime);
+
             //Update Actors
             foreach (KeyValuePair<Guid, BaseActor> actor in GameDirector.Actors)
             {
@@ -139,7 +140,6 @@ namespace Badlands.Core
                 GameDirector.UI[u].Update(gameTime);
             }
 
-            chunkManager.Update(gameTime);
             
             base.Update(gameTime);
         }
@@ -158,6 +158,8 @@ namespace Badlands.Core
                 actor.Value.Draw(gameTime);
             }
 
+            chunkManager.Render();
+
             //Draw UI
             GameDirector.SpriteBatch.Begin();
             for (var u = 0; u < GameDirector.UI.Count; u++)
@@ -174,8 +176,6 @@ namespace Badlands.Core
             GameDirector.SpriteBatch.DrawString(GameDirector.Assets.Fonts[Misc.PRIMARY], camerapos, new Vector2(0, 15), Color.Red);
 
             GameDirector.SpriteBatch.End();
-
-            chunkManager.Render();
 
             base.Draw(gameTime);
         }

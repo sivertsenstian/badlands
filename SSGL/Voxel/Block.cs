@@ -14,9 +14,14 @@ namespace SSGL.Voxel
         public const float RENDER_SIZE = 0.5f;
         public Terrain Type { get; set; }
         public bool IsActive { get; set; }
-
+        
         public Block() {
             IsActive = true;
+        }
+
+        public virtual bool IsSolid()
+        {
+            return true;
         }
 
     }
