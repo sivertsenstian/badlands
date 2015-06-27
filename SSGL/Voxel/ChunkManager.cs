@@ -41,7 +41,7 @@ namespace SSGL.Voxel
                 {
                     for(int k = 0; k < z; k++)
                     {
-                        this.Chunks.Add(new Chunk(new Vector3(i * Chunk.CHUNK_SIZE, j * Chunk.CHUNK_SIZE, k * Chunk.CHUNK_SIZE)));
+                        this.Chunks.Add(new Chunk(new Vector3(i * Chunk.CHUNK_SIZE, j * Chunk.CHUNK_SIZE, k * Chunk.CHUNK_SIZE)) { Manager = this });
                     }
                 }
             }
@@ -250,28 +250,12 @@ namespace SSGL.Voxel
                 chunk = ChunkVisibilityList[i];
                 if(chunk != null)
                 {
-                    if(chunk.IsLoaded && chunk.IsSetup)
+                    if(chunk.IsLoaded && chunk.IsSetup && chunk.ShouldRender() && InView(chunk.Bounds))
                     {
-                        if (chunk.ShouldRender())  // Early flags check so we don't always have to do the frustum check...
-                        {
-                            if (InView(chunk.Bounds))
-                            {
-                                this.ChunkRenderList.Add(chunk);
-                            }
-                            else
-                            {
-                                chunk.IsVisible = false;
-                            }
-                        }
-                        else
-                        {
-                            chunk.IsVisible = false;
-                        }
+                        this.ChunkRenderList.Add(chunk);
+                        continue;
                     }
-                    else
-                    {
-                        chunk.IsVisible = false;
-                    }
+                    chunk.IsVisible = false;
                 }
             }
          

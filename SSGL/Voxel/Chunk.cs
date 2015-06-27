@@ -17,6 +17,7 @@ namespace SSGL.Voxel
         private List<int> _indices;
         private BasicEffect _chunkEffect;
         private Matrix _worldMatrix;
+        private bool _isEmpty;
 
         public const int CHUNK_SIZE = 8;
         public bool IsVisible { get; set; }
@@ -24,6 +25,7 @@ namespace SSGL.Voxel
         public bool IsSetup { get; set; }
         public Vector3 Position { get; set; }
         public BoundingSphere Bounds { get; set; }
+        public ChunkManager Manager { get; set; }
 
         public Chunk(Vector3 position)
         {
@@ -42,6 +44,11 @@ namespace SSGL.Voxel
 
         }
 
+        public void UpdateShouldRenderFlags()
+        {
+            this._isEmpty = this._vertices.Count == 0;
+        }
+
         public void Unload()
         {
             _vertices = null;
@@ -57,6 +64,7 @@ namespace SSGL.Voxel
             _blocks = new Block[CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE];
             //TODO: FIX THE TYPE ASSIGNMENT
             Terrain type;
+            var random = new Random();
             // Create the blocks
             for (int i = 0; i < CHUNK_SIZE; i++)
             {
@@ -65,7 +73,7 @@ namespace SSGL.Voxel
                     for (int k = 0; k < CHUNK_SIZE; k++)
                     {
                         var height = j + Position.Y;
-                        type = height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
+                        type = (Terrain)random.Next(1, 11); //height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
                         _blocks[i, j, k] = new Block() { Type = type };
                     }
                 }
@@ -99,19 +107,29 @@ namespace SSGL.Voxel
                         bool xNegative = renderDefault;
                         if (x > 0)
                             xNegative = !_blocks[x - 1, y, z].IsActive;
+
+
                         bool xPositive = renderDefault;
                         if (x < CHUNK_SIZE - 1)
                             xPositive = !_blocks[x + 1, y, z].IsActive;
+
+
                         bool yNegative = renderDefault;
                         if (y > 0)
                             yNegative = !_blocks[x, y - 1, z].IsActive;
+
+
                         bool yPositive = renderDefault;
                         if (y < CHUNK_SIZE - 1)
                             yPositive = !_blocks[x, y + 1, z].IsActive;
 
+
+
                         bool zNegative = renderDefault;
                         if (z > 0)
                             zNegative = !_blocks[x, y, z - 1].IsActive;
+
+
                         bool zPositive = renderDefault;
                         if (z < CHUNK_SIZE - 1)
                             zPositive = !_blocks[x, y, z + 1].IsActive;
@@ -120,6 +138,7 @@ namespace SSGL.Voxel
                     }
                 }
             }
+            this.UpdateShouldRenderFlags();
             this.IsSetup = true;
         }
 
@@ -133,16 +152,11 @@ namespace SSGL.Voxel
 
         public bool ShouldRender()
         {
-            return true;
+            return !this._isEmpty;
         }
 
         public void Render()
         {
-            if(this._vertices.Count == 0)
-            {
-                return;
-            }
-
             DepthStencilState _depthState = new DepthStencilState();
             _depthState.DepthBufferEnable = true; /* Enable the depth buffer */
             _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
@@ -198,8 +212,8 @@ namespace SSGL.Voxel
         private void createBlock(bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive, int x, int y, int z, Terrain type)
         {
             //Build block
-            VertexPositionNormalTexture[] _blockVertices = new VertexPositionNormalTexture[24];
-            int[] _blockIndices = new int[36];
+            VertexPositionNormalTexture[] _blockVertices = new VertexPositionNormalTexture[4];
+            int[] _blockIndices = new int[6];
 
             //Vectors
             Vector3 TopLeftFront = new Vector3(x - Block.RENDER_SIZE, y + Block.RENDER_SIZE, z - Block.RENDER_SIZE);
@@ -214,7 +228,7 @@ namespace SSGL.Voxel
 
             Vector2[] TextureUV = Util.TerrainTextureCoordinates(type);
 
-            /// VERTICES ////
+            /// VERTICES //// INDICES ///
             if (zNegative)
             {
                 // Add the vertices for the FRONT face.
@@ -222,105 +236,119 @@ namespace SSGL.Voxel
                 _blockVertices[1] = new VertexPositionNormalTexture(BottomLeftFront, Default.FrontNormal, TextureUV[1]);
                 _blockVertices[2] = new VertexPositionNormalTexture(TopRightFront, Default.FrontNormal, TextureUV[2]);
                 _blockVertices[3] = new VertexPositionNormalTexture(BottomRightFront, Default.FrontNormal, TextureUV[3]);
+
+                //Add the indices for the FRONT face.
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 1;
+                _blockIndices[4] = this._vertices.Count + 3;
+                _blockIndices[5] = this._vertices.Count + 2;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
 
             if (zPositive)
             {
                 // Add the vertices for the BACK face.
-                _blockVertices[4] = new VertexPositionNormalTexture(TopLeftBack, Default.BackNormal, TextureUV[2]);
-                _blockVertices[5] = new VertexPositionNormalTexture(TopRightBack, Default.BackNormal, TextureUV[0]);
-                _blockVertices[6] = new VertexPositionNormalTexture(BottomLeftBack, Default.BackNormal, TextureUV[3]);
-                _blockVertices[7] = new VertexPositionNormalTexture(BottomRightBack, Default.BackNormal, TextureUV[1]);
+                _blockVertices[0] = new VertexPositionNormalTexture(TopLeftBack, Default.BackNormal, TextureUV[2]);
+                _blockVertices[1] = new VertexPositionNormalTexture(TopRightBack, Default.BackNormal, TextureUV[0]);
+                _blockVertices[2] = new VertexPositionNormalTexture(BottomLeftBack, Default.BackNormal, TextureUV[3]);
+                _blockVertices[3] = new VertexPositionNormalTexture(BottomRightBack, Default.BackNormal, TextureUV[1]);
+
+                //Add the indices for the BACK face.
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 2;
+                _blockIndices[4] = this._vertices.Count + 1;
+                _blockIndices[5] = this._vertices.Count + 3;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
 
             if (yPositive)
             {
                 // Add the vertices for the TOP face.
-                _blockVertices[8] = new VertexPositionNormalTexture(TopLeftFront, Default.TopNormal, TextureUV[1]);
-                _blockVertices[9] = new VertexPositionNormalTexture(TopRightBack, Default.TopNormal, TextureUV[2]);
-                _blockVertices[10] = new VertexPositionNormalTexture(TopLeftBack, Default.TopNormal, TextureUV[0]);
-                _blockVertices[11] = new VertexPositionNormalTexture(TopRightFront, Default.TopNormal, TextureUV[3]);
+                _blockVertices[0] = new VertexPositionNormalTexture(TopLeftFront, Default.TopNormal, TextureUV[1]);
+                _blockVertices[1] = new VertexPositionNormalTexture(TopRightBack, Default.TopNormal, TextureUV[2]);
+                _blockVertices[2] = new VertexPositionNormalTexture(TopLeftBack, Default.TopNormal, TextureUV[0]);
+                _blockVertices[3] = new VertexPositionNormalTexture(TopRightFront, Default.TopNormal, TextureUV[3]);
+
+                // Add the indices for the TOP face.
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 0;
+                _blockIndices[4] = this._vertices.Count + 3;
+                _blockIndices[5] = this._vertices.Count + 1;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
 
             if (yNegative)
             {
                 // Add the vertices for the BOTTOM face. 
-                _blockVertices[12] = new VertexPositionNormalTexture(BottomLeftFront, Default.BottomNormal, TextureUV[0]);
-                _blockVertices[13] = new VertexPositionNormalTexture(BottomLeftBack, Default.BottomNormal, TextureUV[1]);
-                _blockVertices[14] = new VertexPositionNormalTexture(BottomRightBack, Default.BottomNormal, TextureUV[3]);
-                _blockVertices[15] = new VertexPositionNormalTexture(BottomRightFront, Default.BottomNormal, TextureUV[2]);
+                _blockVertices[0] = new VertexPositionNormalTexture(BottomLeftFront, Default.BottomNormal, TextureUV[0]);
+                _blockVertices[1] = new VertexPositionNormalTexture(BottomLeftBack, Default.BottomNormal, TextureUV[1]);
+                _blockVertices[2] = new VertexPositionNormalTexture(BottomRightBack, Default.BottomNormal, TextureUV[3]);
+                _blockVertices[3] = new VertexPositionNormalTexture(BottomRightFront, Default.BottomNormal, TextureUV[2]);
+
+                // Add the indices for the BOTTOM face. 
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 0;
+                _blockIndices[4] = this._vertices.Count + 2;
+                _blockIndices[5] = this._vertices.Count + 3;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
 
             if (xNegative)
             {
                 // Add the vertices for the LEFT face.
-                _blockVertices[16] = new VertexPositionNormalTexture(TopLeftFront, Default.LeftNormal, TextureUV[2]);
-                _blockVertices[17] = new VertexPositionNormalTexture(BottomLeftBack, Default.LeftNormal, TextureUV[1]);
-                _blockVertices[18] = new VertexPositionNormalTexture(BottomLeftFront, Default.LeftNormal, TextureUV[3]);
-                _blockVertices[19] = new VertexPositionNormalTexture(TopLeftBack, Default.LeftNormal, TextureUV[0]);
+                _blockVertices[0] = new VertexPositionNormalTexture(TopLeftFront, Default.LeftNormal, TextureUV[2]);
+                _blockVertices[1] = new VertexPositionNormalTexture(BottomLeftBack, Default.LeftNormal, TextureUV[1]);
+                _blockVertices[2] = new VertexPositionNormalTexture(BottomLeftFront, Default.LeftNormal, TextureUV[3]);
+                _blockVertices[3] = new VertexPositionNormalTexture(TopLeftBack, Default.LeftNormal, TextureUV[0]);
+
+                // Add the indices for the LEFT face.
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 3;
+                _blockIndices[4] = this._vertices.Count + 1;
+                _blockIndices[5] = this._vertices.Count + 0;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
 
 
             if (xPositive)
             {
                 // Add the vertices for the RIGHT face. 
-                _blockVertices[20] = new VertexPositionNormalTexture(TopRightFront, Default.RightNormal, TextureUV[0]);
-                _blockVertices[21] = new VertexPositionNormalTexture(BottomRightFront, Default.RightNormal, TextureUV[1]);
-                _blockVertices[22] = new VertexPositionNormalTexture(BottomRightBack, Default.RightNormal, TextureUV[3]);
-                _blockVertices[23] = new VertexPositionNormalTexture(TopRightBack, Default.RightNormal, TextureUV[2]);
+                _blockVertices[0] = new VertexPositionNormalTexture(TopRightFront, Default.RightNormal, TextureUV[0]);
+                _blockVertices[1] = new VertexPositionNormalTexture(BottomRightFront, Default.RightNormal, TextureUV[1]);
+                _blockVertices[2] = new VertexPositionNormalTexture(BottomRightBack, Default.RightNormal, TextureUV[3]);
+                _blockVertices[3] = new VertexPositionNormalTexture(TopRightBack, Default.RightNormal, TextureUV[2]);
+
+                // Add the indices for the RIGHT face. 
+                _blockIndices[0] = this._vertices.Count + 0;
+                _blockIndices[1] = this._vertices.Count + 1;
+                _blockIndices[2] = this._vertices.Count + 2;
+                _blockIndices[3] = this._vertices.Count + 3;
+                _blockIndices[4] = this._vertices.Count + 0;
+                _blockIndices[5] = this._vertices.Count + 2;
+
+                this._vertices.AddRange(_blockVertices);
+                this._indices.AddRange(_blockIndices);
             }
-
-            //// INDICES ///
-            //Front
-            _blockIndices[0] = this._vertices.Count + 0;
-            _blockIndices[1] = this._vertices.Count + 1;
-            _blockIndices[2] = this._vertices.Count + 2;
-            _blockIndices[3] = this._vertices.Count + 1;
-            _blockIndices[4] = this._vertices.Count + 3;
-            _blockIndices[5] = this._vertices.Count + 2;
-
-            //Back
-            _blockIndices[6] = this._vertices.Count + 4;
-            _blockIndices[7] = this._vertices.Count + 5;
-            _blockIndices[8] = this._vertices.Count + 6;
-            _blockIndices[9] = this._vertices.Count + 6;
-            _blockIndices[10] = this._vertices.Count + 5;
-            _blockIndices[11] = this._vertices.Count + 7;
-
-            //Top
-            _blockIndices[12] = this._vertices.Count + 8;
-            _blockIndices[13] = this._vertices.Count + 9;
-            _blockIndices[14] = this._vertices.Count + 10;
-            _blockIndices[15] = this._vertices.Count + 8;
-            _blockIndices[16] = this._vertices.Count + 11;
-            _blockIndices[17] = this._vertices.Count + 9;
-
-            //Bottom
-            _blockIndices[18] = this._vertices.Count + 12;
-            _blockIndices[19] = this._vertices.Count + 13;
-            _blockIndices[20] = this._vertices.Count + 14;
-            _blockIndices[21] = this._vertices.Count + 12;
-            _blockIndices[22] = this._vertices.Count + 14;
-            _blockIndices[23] = this._vertices.Count + 15;
-
-            //Left
-            _blockIndices[24] = this._vertices.Count + 16;
-            _blockIndices[25] = this._vertices.Count + 17;
-            _blockIndices[26] = this._vertices.Count + 18;
-            _blockIndices[27] = this._vertices.Count + 19;
-            _blockIndices[28] = this._vertices.Count + 17;
-            _blockIndices[29] = this._vertices.Count + 16;
-
-            //Right
-            _blockIndices[30] = this._vertices.Count + 20;
-            _blockIndices[31] = this._vertices.Count + 21;
-            _blockIndices[32] = this._vertices.Count + 22;
-            _blockIndices[33] = this._vertices.Count + 23;
-            _blockIndices[34] = this._vertices.Count + 20;
-            _blockIndices[35] = this._vertices.Count + 22;
-
-            this._vertices.AddRange(_blockVertices);
-            this._indices.AddRange(_blockIndices);
         }
     }
 }
