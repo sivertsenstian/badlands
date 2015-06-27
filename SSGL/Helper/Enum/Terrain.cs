@@ -10,8 +10,15 @@ namespace SSGL.Helper.Enum
         TEXTURE,
         WATER,
         SAND,
-        DIRT,
-        GRASS
+        BRICK,
+        SNOW,
+        SANDSTONE,
+        GRASS,
+        ROCK,
+        ICE,
+        ROOFSTONE,
+        WOOD,
+        DIRT
     }
     
 }

@@ -18,36 +18,19 @@ namespace SSGL.Helper
             Vector2 TextureBottomLeft = Vector2.Zero;
             Vector2 TextureTopRight = Vector2.Zero;
             Vector2 TextureBottomRight = Vector2.Zero;
-            
-            //TODO: Possible to calculate this ?
-            if (terrain == Terrain.WATER) //TOP LEFT
-            {
-                TextureTopLeft = new Vector2(0.5f, 0);
-                TextureBottomLeft = new Vector2(0.5f, 0.5f);
-                TextureTopRight = new Vector2(0, 0);
-                TextureBottomRight = new Vector2(0, 0.5f);
-            }
-            else if (terrain == Terrain.SAND) //TOP RIGHT
-            {
-                TextureTopLeft = new Vector2(1.0f, 0);
-                TextureBottomLeft = new Vector2(1.0f, 0.5f);
-                TextureTopRight = new Vector2(0.5f, 0);
-                TextureBottomRight = new Vector2(0.5f, 0.5f);
-            }
-            else if (terrain == Terrain.GRASS) //BOTTOM RIGHT
-            {
-                TextureTopLeft = new Vector2(1.0f, 0.5f);
-                TextureBottomLeft = new Vector2(1.0f, 1.0f);
-                TextureTopRight = new Vector2(0.5f, 0.5f);
-                TextureBottomRight = new Vector2(0.5f, 1.0f);
-            }
-            else if (terrain == Terrain.DIRT) //BOTTOM LEFT
-            {
-                TextureTopLeft = new Vector2(0.5f, 0.5f);
-                TextureBottomLeft = new Vector2(0.5f, 1.0f);
-                TextureTopRight = new Vector2(0, 0.5f);
-                TextureBottomRight = new Vector2(0, 1.0f);
-            }
+
+            float columns = 4;
+            float rows = 4;
+            float step_y = 1 / columns;
+            float step_x = 1 / rows;
+
+            float terrainColumn = (float)((int)terrain % columns > 0 ? (int)terrain % columns : 4.0);
+            float terrainRow = (float)Math.Ceiling((int)terrain / columns);
+
+            TextureTopLeft = new Vector2(terrainColumn * step_x, (terrainRow - 1) * step_y);
+            TextureBottomLeft = new Vector2(terrainColumn * step_x, terrainRow * step_y);
+            TextureTopRight = new Vector2((terrainColumn - 1) * step_x, (terrainRow - 1) * step_y);
+            TextureBottomRight = new Vector2((terrainColumn - 1) * step_x, terrainRow * step_y);          
 
             coords[0] = TextureTopLeft;
             coords[1] = TextureBottomLeft;

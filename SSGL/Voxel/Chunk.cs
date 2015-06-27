@@ -97,7 +97,7 @@ namespace SSGL.Voxel
             _chunkEffect.TextureEnabled = true;
 
             // Enable some pretty lights
-            _chunkEffect.EnableDefaultLighting();
+            //_chunkEffect.EnableDefaultLighting();
 
             // apply the effect and render the cube
             //RasterizerState rasterizerState = new RasterizerState();
