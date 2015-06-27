@@ -82,6 +82,8 @@ namespace SSGL.Voxel
             _indices = new List<int>();
             _chunkEffect = new BasicEffect(GameDirector.Device);
 
+            bool renderDefault = true;
+
             for (int x = 0; x < CHUNK_SIZE; x++)
             {
                 for (int y = 0; y < CHUNK_SIZE; y++)
@@ -93,7 +95,28 @@ namespace SSGL.Voxel
                             // Don't create triangle data for inactive blocks
                             continue;
                         }
-                        this.createBlock(x, y, z, _blocks[x, y, z].Type);
+
+                        bool xNegative = renderDefault;
+                        if (x > 0)
+                            xNegative = !_blocks[x - 1, y, z].IsActive;
+                        bool xPositive = renderDefault;
+                        if (x < CHUNK_SIZE - 1)
+                            xPositive = !_blocks[x + 1, y, z].IsActive;
+                        bool yNegative = renderDefault;
+                        if (y > 0)
+                            yNegative = !_blocks[x, y - 1, z].IsActive;
+                        bool yPositive = renderDefault;
+                        if (y < CHUNK_SIZE - 1)
+                            yPositive = !_blocks[x, y + 1, z].IsActive;
+
+                        bool zNegative = renderDefault;
+                        if (z > 0)
+                            zNegative = !_blocks[x, y, z - 1].IsActive;
+                        bool zPositive = renderDefault;
+                        if (z < CHUNK_SIZE - 1)
+                            zPositive = !_blocks[x, y, z + 1].IsActive;
+
+                        this.createBlock(xNegative, xPositive, yNegative, yPositive, zNegative, zPositive, x, y, z, _blocks[x, y, z].Type);
                     }
                 }
             }
@@ -103,6 +126,7 @@ namespace SSGL.Voxel
         //ReLoad ?
         public void RebuildMesh()
         {
+            this.Unload();
             this.Load();
             this.Setup();
         }
@@ -114,6 +138,11 @@ namespace SSGL.Voxel
 
         public void Render()
         {
+            if(this._vertices.Count == 0)
+            {
+                return;
+            }
+
             DepthStencilState _depthState = new DepthStencilState();
             _depthState.DepthBufferEnable = true; /* Enable the depth buffer */
             _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
@@ -166,7 +195,7 @@ namespace SSGL.Voxel
         }
 
 
-        private void createBlock(int x, int y, int z, Terrain type)
+        private void createBlock(bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive, int x, int y, int z, Terrain type)
         {
             //Build block
             VertexPositionNormalTexture[] _blockVertices = new VertexPositionNormalTexture[24];
@@ -186,41 +215,60 @@ namespace SSGL.Voxel
             Vector2[] TextureUV = Util.TerrainTextureCoordinates(type);
 
             /// VERTICES ////
-            // Add the vertices for the FRONT face.
-            _blockVertices[0] = new VertexPositionNormalTexture(TopLeftFront, Default.FrontNormal, TextureUV[0]);
-            _blockVertices[1] = new VertexPositionNormalTexture(BottomLeftFront, Default.FrontNormal, TextureUV[1]);
-            _blockVertices[2] = new VertexPositionNormalTexture(TopRightFront, Default.FrontNormal, TextureUV[2]);
-            _blockVertices[3] = new VertexPositionNormalTexture(BottomRightFront, Default.FrontNormal, TextureUV[3]);
+            if (zNegative)
+            {
+                // Add the vertices for the FRONT face.
+                _blockVertices[0] = new VertexPositionNormalTexture(TopLeftFront, Default.FrontNormal, TextureUV[0]);
+                _blockVertices[1] = new VertexPositionNormalTexture(BottomLeftFront, Default.FrontNormal, TextureUV[1]);
+                _blockVertices[2] = new VertexPositionNormalTexture(TopRightFront, Default.FrontNormal, TextureUV[2]);
+                _blockVertices[3] = new VertexPositionNormalTexture(BottomRightFront, Default.FrontNormal, TextureUV[3]);
+            }
 
-            // Add the vertices for the BACK face.
-            _blockVertices[4] = new VertexPositionNormalTexture(TopLeftBack, Default.BackNormal, TextureUV[2]);
-            _blockVertices[5] = new VertexPositionNormalTexture(TopRightBack, Default.BackNormal, TextureUV[0]);
-            _blockVertices[6] = new VertexPositionNormalTexture(BottomLeftBack, Default.BackNormal, TextureUV[3]);
-            _blockVertices[7] = new VertexPositionNormalTexture(BottomRightBack, Default.BackNormal, TextureUV[1]);
+            if (zPositive)
+            {
+                // Add the vertices for the BACK face.
+                _blockVertices[4] = new VertexPositionNormalTexture(TopLeftBack, Default.BackNormal, TextureUV[2]);
+                _blockVertices[5] = new VertexPositionNormalTexture(TopRightBack, Default.BackNormal, TextureUV[0]);
+                _blockVertices[6] = new VertexPositionNormalTexture(BottomLeftBack, Default.BackNormal, TextureUV[3]);
+                _blockVertices[7] = new VertexPositionNormalTexture(BottomRightBack, Default.BackNormal, TextureUV[1]);
+            }
 
-            // Add the vertices for the TOP face.
-            _blockVertices[8] = new VertexPositionNormalTexture(TopLeftFront, Default.TopNormal, TextureUV[1]);
-            _blockVertices[9] = new VertexPositionNormalTexture(TopRightBack, Default.TopNormal, TextureUV[2]);
-            _blockVertices[10] = new VertexPositionNormalTexture(TopLeftBack, Default.TopNormal, TextureUV[0]);
-            _blockVertices[11] = new VertexPositionNormalTexture(TopRightFront, Default.TopNormal, TextureUV[3]);
+            if (yPositive)
+            {
+                // Add the vertices for the TOP face.
+                _blockVertices[8] = new VertexPositionNormalTexture(TopLeftFront, Default.TopNormal, TextureUV[1]);
+                _blockVertices[9] = new VertexPositionNormalTexture(TopRightBack, Default.TopNormal, TextureUV[2]);
+                _blockVertices[10] = new VertexPositionNormalTexture(TopLeftBack, Default.TopNormal, TextureUV[0]);
+                _blockVertices[11] = new VertexPositionNormalTexture(TopRightFront, Default.TopNormal, TextureUV[3]);
+            }
 
-            // Add the vertices for the BOTTOM face. 
-            _blockVertices[12] = new VertexPositionNormalTexture(BottomLeftFront, Default.BottomNormal, TextureUV[0]);
-            _blockVertices[13] = new VertexPositionNormalTexture(BottomLeftBack, Default.BottomNormal, TextureUV[1]);
-            _blockVertices[14] = new VertexPositionNormalTexture(BottomRightBack, Default.BottomNormal, TextureUV[3]);
-            _blockVertices[15] = new VertexPositionNormalTexture(BottomRightFront, Default.BottomNormal, TextureUV[2]);
+            if (yNegative)
+            {
+                // Add the vertices for the BOTTOM face. 
+                _blockVertices[12] = new VertexPositionNormalTexture(BottomLeftFront, Default.BottomNormal, TextureUV[0]);
+                _blockVertices[13] = new VertexPositionNormalTexture(BottomLeftBack, Default.BottomNormal, TextureUV[1]);
+                _blockVertices[14] = new VertexPositionNormalTexture(BottomRightBack, Default.BottomNormal, TextureUV[3]);
+                _blockVertices[15] = new VertexPositionNormalTexture(BottomRightFront, Default.BottomNormal, TextureUV[2]);
+            }
 
-            // Add the vertices for the LEFT face.
-            _blockVertices[16] = new VertexPositionNormalTexture(TopLeftFront, Default.LeftNormal, TextureUV[2]);
-            _blockVertices[17] = new VertexPositionNormalTexture(BottomLeftBack, Default.LeftNormal, TextureUV[1]);
-            _blockVertices[18] = new VertexPositionNormalTexture(BottomLeftFront, Default.LeftNormal, TextureUV[3]);
-            _blockVertices[19] = new VertexPositionNormalTexture(TopLeftBack, Default.LeftNormal, TextureUV[0]);
+            if (xNegative)
+            {
+                // Add the vertices for the LEFT face.
+                _blockVertices[16] = new VertexPositionNormalTexture(TopLeftFront, Default.LeftNormal, TextureUV[2]);
+                _blockVertices[17] = new VertexPositionNormalTexture(BottomLeftBack, Default.LeftNormal, TextureUV[1]);
+                _blockVertices[18] = new VertexPositionNormalTexture(BottomLeftFront, Default.LeftNormal, TextureUV[3]);
+                _blockVertices[19] = new VertexPositionNormalTexture(TopLeftBack, Default.LeftNormal, TextureUV[0]);
+            }
 
-            // Add the vertices for the RIGHT face. 
-            _blockVertices[20] = new VertexPositionNormalTexture(TopRightFront, Default.RightNormal, TextureUV[0]);
-            _blockVertices[21] = new VertexPositionNormalTexture(BottomRightFront, Default.RightNormal, TextureUV[1]);
-            _blockVertices[22] = new VertexPositionNormalTexture(BottomRightBack, Default.RightNormal, TextureUV[3]);
-            _blockVertices[23] = new VertexPositionNormalTexture(TopRightBack, Default.RightNormal, TextureUV[2]);
+
+            if (xPositive)
+            {
+                // Add the vertices for the RIGHT face. 
+                _blockVertices[20] = new VertexPositionNormalTexture(TopRightFront, Default.RightNormal, TextureUV[0]);
+                _blockVertices[21] = new VertexPositionNormalTexture(BottomRightFront, Default.RightNormal, TextureUV[1]);
+                _blockVertices[22] = new VertexPositionNormalTexture(BottomRightBack, Default.RightNormal, TextureUV[3]);
+                _blockVertices[23] = new VertexPositionNormalTexture(TopRightBack, Default.RightNormal, TextureUV[2]);
+            }
 
             //// INDICES ///
             //Front

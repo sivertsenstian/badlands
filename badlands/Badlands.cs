@@ -104,7 +104,7 @@ namespace Badlands.Core
             GameDirector.UI.Add(cursor);
             GameDirector.UI.Add(counter);
 
-            chunkManager = new ChunkManager(32);
+            chunkManager = new ChunkManager(128, 1, 128);
         }
 
         /// <summary>

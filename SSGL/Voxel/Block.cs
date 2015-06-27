@@ -18,11 +18,5 @@ namespace SSGL.Voxel
         public Block() {
             IsActive = true;
         }
-
-        public virtual bool IsSolid()
-        {
-            return true;
-        }
-
     }
 }
