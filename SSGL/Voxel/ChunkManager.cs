@@ -23,6 +23,7 @@ namespace SSGL.Voxel
         private bool _forceVisibilityUpdate;
 
         private const int ASYNC_NUM_CHUNKS_PER_FRAME = 8;
+        private Vector3 _size;
 
         public ChunkManager(int x, int y, int z)
         {
@@ -34,6 +35,8 @@ namespace SSGL.Voxel
             ChunkRebuildList = new List<Chunk>();
             ChunkSetupList = new List<Chunk>();
             ChunkUpdateFlagsList = new List<Chunk>();
+
+            this._size = new Vector3(x, y, z);
 
             for(int i = 0; i < x; i++)
             {
@@ -288,17 +291,11 @@ namespace SSGL.Voxel
 
         public Chunk GetChunk(Vector3 position)
         {
-            Chunk chunk;
-
-            for(var i = 0; i < this.Chunks.Count; i++)
+            int index = (int)((position.X/8) + this._size.X * ((position.Y/8) + this._size.Z * (position.Z/8)));
+            if (index >= 0 && index < this.Chunks.Count)
             {
-                chunk = this.Chunks[i];
-                if( chunk.Position.Equals(position))
-                {
-                    return chunk;
-                }
+                return this.Chunks[index];
             }
-
             return null;
         }
 

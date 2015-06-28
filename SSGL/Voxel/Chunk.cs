@@ -12,7 +12,7 @@ namespace SSGL.Voxel
 {
     public class Chunk
     {
-        private Block[,,] _blocks;
+        private Block[][][] _blocks;
         private List<VertexPositionNormalTexture> _vertices;
         private List<int> _indices;
         private BasicEffect _chunkEffect;
@@ -61,20 +61,22 @@ namespace SSGL.Voxel
         }
         //Loads and creates initial block-data for this chunk
         public void Load() {
-            _blocks = new Block[CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE];
+            _blocks = new Block[CHUNK_SIZE][][];
             //TODO: FIX THE TYPE ASSIGNMENT
             Terrain type;
-            var random = new Random();
             // Create the blocks
             for (int i = 0; i < CHUNK_SIZE; i++)
             {
+                _blocks[i] = new Block[CHUNK_SIZE][];
                 for (int j = 0; j < CHUNK_SIZE; j++)
                 {
+                    _blocks[i][j] = new Block[CHUNK_SIZE];
+
                     for (int k = 0; k < CHUNK_SIZE; k++)
                     {
                         var height = j + Position.Y;
-                        type = (Terrain)random.Next(1, 11); //height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
-                        _blocks[i, j, k] = new Block() { Type = type };
+                        type = height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
+                        _blocks[i][j][k] = new Block() { Type = type };
                     }
                 }
             }
@@ -98,7 +100,7 @@ namespace SSGL.Voxel
                 {
                     for (int z = 0; z < CHUNK_SIZE; z++)
                     {
-                        if (!_blocks[x, y, z].IsActive)
+                        if (!_blocks[x][y][z].IsActive)
                         {
                             // Don't create triangle data for inactive blocks
                             continue;
@@ -106,35 +108,43 @@ namespace SSGL.Voxel
 
                         bool xNegative = renderDefault;
                         if (x > 0)
-                            xNegative = !_blocks[x - 1, y, z].IsActive;
-
+                        {
+                            xNegative = !_blocks[x - 1][y][z].IsActive;
+                        }
 
                         bool xPositive = renderDefault;
                         if (x < CHUNK_SIZE - 1)
-                            xPositive = !_blocks[x + 1, y, z].IsActive;
-
+                        {
+                            xPositive = !_blocks[x + 1][y][z].IsActive;
+                        } 
 
                         bool yNegative = renderDefault;
                         if (y > 0)
-                            yNegative = !_blocks[x, y - 1, z].IsActive;
-
+                        {
+                            yNegative = !_blocks[x][y - 1][z].IsActive;
+                        }
 
                         bool yPositive = renderDefault;
                         if (y < CHUNK_SIZE - 1)
-                            yPositive = !_blocks[x, y + 1, z].IsActive;
-
+                        {
+                            yPositive = !_blocks[x][y + 1][z].IsActive;
+                        }
 
 
                         bool zNegative = renderDefault;
                         if (z > 0)
-                            zNegative = !_blocks[x, y, z - 1].IsActive;
-
+                        {
+                            zNegative = !_blocks[x][y][z - 1].IsActive;
+                        } 
 
                         bool zPositive = renderDefault;
                         if (z < CHUNK_SIZE - 1)
-                            zPositive = !_blocks[x, y, z + 1].IsActive;
-
-                        this.createBlock(xNegative, xPositive, yNegative, yPositive, zNegative, zPositive, x, y, z, _blocks[x, y, z].Type);
+                        {
+                            zPositive = !_blocks[x][y][z + 1].IsActive;
+                        } 
+                        
+                        this.createBlock(xNegative, xPositive, yNegative, yPositive, zNegative, zPositive, x, y, z, _blocks[x][y][z].Type);
+                        
                     }
                 }
             }
@@ -206,6 +216,22 @@ namespace SSGL.Voxel
                     }
                 }
             }
+        }
+
+        public Block GetBlock(int x, int y, int z)
+        {
+            try {
+                if(this._blocks != null)
+                {
+                    return this._blocks[x][y][z];
+                }
+            }
+            catch (System.IndexOutOfRangeException)
+            {
+                //Not valid !
+                return null;
+            }
+            return null;
         }
 
 
