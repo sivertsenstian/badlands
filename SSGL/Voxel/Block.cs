@@ -9,13 +9,14 @@ using System.Text;
 
 namespace SSGL.Voxel
 {
-    public class Block
+    public struct Block
     {
         public const float RENDER_SIZE = 0.5f;
         public Terrain Type { get; set; }
         public bool IsActive { get; set; }
         
-        public Block() {
+        public Block(Terrain type) {
+            this.Type = type;
             IsActive = true;
         }
     }

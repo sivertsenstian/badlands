@@ -47,7 +47,7 @@ namespace Badlands.Core
             GameDirector.Game = this;
 
             //Init camera
-            GameDirector.Camera = new Camera(this, new Vector3(100, 150, 100), Vector3.Zero, Vector3.Up, 1.0f, 1000.0f);
+            GameDirector.Camera = new Camera(this, new Vector3(100, 100, 100), Vector3.Zero, Vector3.Up, 1.0f, 1000);
             Components.Add(GameDirector.Camera);
 
             //Init graphicsdevice
@@ -104,7 +104,7 @@ namespace Badlands.Core
             GameDirector.UI.Add(cursor);
             GameDirector.UI.Add(counter);
 
-            chunkManager = new ChunkManager(32, 1, 32);
+            chunkManager = new ChunkManager(128, 1, 128);
         }
 
         /// <summary>

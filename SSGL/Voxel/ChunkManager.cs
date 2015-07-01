@@ -22,7 +22,7 @@ namespace SSGL.Voxel
         private Matrix _cameraView;
         private bool _forceVisibilityUpdate;
 
-        private const int ASYNC_NUM_CHUNKS_PER_FRAME = 8;
+        private const int ASYNC_NUM_CHUNKS_PER_FRAME = 16;
         private Vector3 _size;
 
         public ChunkManager(int x, int y, int z)
@@ -50,6 +50,7 @@ namespace SSGL.Voxel
             }
         }
 
+        //Only load the surrounding chunks in the visibilitylist (camera-position)
         public void UpdateAsyncChunker()
         {
 
@@ -266,6 +267,7 @@ namespace SSGL.Voxel
 
         public void Update(GameTime gameTime)
         {
+
             UpdateAsyncChunker();
 
             UpdateLoadList();
@@ -280,9 +282,10 @@ namespace SSGL.Voxel
 
             UpdateVisibilityList(_cameraPosition);
 
-            if (_cameraPosition != GameDirector.Camera.Position || _cameraView != GameDirector.Camera.View)
+            if (_cameraPosition != GameDirector.Camera.Position || _cameraView != GameDirector.Camera.View || this._forceVisibilityUpdate)
             {
                 UpdateRenderList();
+                this._forceVisibilityUpdate = false;
             }
 
             _cameraPosition = GameDirector.Camera.Position;

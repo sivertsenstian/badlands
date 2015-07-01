@@ -31,7 +31,7 @@ namespace SSGL.Voxel
         {
             this.Position = position;
 
-            this.IsVisible = true;
+            this.IsVisible = false;
             _worldMatrix = Matrix.CreateTranslation(this.Position);
 
             float c_offset = (Chunk.CHUNK_SIZE * Block.RENDER_SIZE) - Block.RENDER_SIZE;
@@ -61,6 +61,9 @@ namespace SSGL.Voxel
         }
         //Loads and creates initial block-data for this chunk
         public void Load() {
+            _vertices = new List<VertexPositionNormalTexture>();
+            _indices = new List<int>();
+            _chunkEffect = new BasicEffect(GameDirector.Device);
             _blocks = new Block[CHUNK_SIZE][][];
             //TODO: FIX THE TYPE ASSIGNMENT
             Terrain type;
@@ -76,7 +79,7 @@ namespace SSGL.Voxel
                     {
                         var height = j + Position.Y;
                         type = height < 3 ? Terrain.WATER : height < 5 ? Terrain.SAND : height < 7 ? Terrain.DIRT : height < 10 ? Terrain.GRASS : height < 16 ? Terrain.ROCK : Terrain.SNOW;
-                        _blocks[i][j][k] = new Block() { Type = type };
+                        _blocks[i][j][k] = new Block(type);
                     }
                 }
             }
@@ -88,10 +91,6 @@ namespace SSGL.Voxel
         //Creates the loaded blocks for this chunk
         //Creates vertices and indices for the chunk-buffer
         public void Setup() {
-            _vertices = new List<VertexPositionNormalTexture>();
-            _indices = new List<int>();
-            _chunkEffect = new BasicEffect(GameDirector.Device);
-
             bool renderDefault = true;
 
             for (int x = 0; x < CHUNK_SIZE; x++)
@@ -172,7 +171,7 @@ namespace SSGL.Voxel
             _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
 
             // Set the World matrix which defines the position of the cube
-            _chunkEffect.World = this._worldMatrix * Matrix.Identity * Matrix.Identity;
+            _chunkEffect.World = this._worldMatrix;
 
             // Set the View matrix which defines the camera and what it's looking at
             _chunkEffect.View = GameDirector.Camera.View;
@@ -217,23 +216,6 @@ namespace SSGL.Voxel
                 }
             }
         }
-
-        public Block GetBlock(int x, int y, int z)
-        {
-            try {
-                if(this._blocks != null)
-                {
-                    return this._blocks[x][y][z];
-                }
-            }
-            catch (System.IndexOutOfRangeException)
-            {
-                //Not valid !
-                return null;
-            }
-            return null;
-        }
-
 
         private void createBlock(bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive, int x, int y, int z, Terrain type)
         {
