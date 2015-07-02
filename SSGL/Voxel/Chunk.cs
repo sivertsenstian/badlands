@@ -18,6 +18,7 @@ namespace SSGL.Voxel
         private BasicEffect _chunkEffect;
         private Matrix _worldMatrix;
         private bool _isEmpty;
+        private DepthStencilState _depthState;
 
         public const int CHUNK_SIZE = 8;
         public bool IsVisible { get; set; }
@@ -65,6 +66,18 @@ namespace SSGL.Voxel
             _indices = new List<int>();
             _chunkEffect = new BasicEffect(GameDirector.Device);
             _blocks = new Block[CHUNK_SIZE][][];
+
+            _depthState = new DepthStencilState();
+            _depthState.DepthBufferEnable = true; /* Enable the depth buffer */
+            _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
+
+            // Set the World matrix which defines the position of the cube
+            _chunkEffect.World = this._worldMatrix;
+
+            // Enable textures on the Cube Effect. this is necessary to texture the model
+            _chunkEffect.Texture = GameDirector.Assets.Textures[Terrain.TEXTURE];
+            _chunkEffect.TextureEnabled = true;
+
             //TODO: FIX THE TYPE ASSIGNMENT
             Terrain type;
             // Create the blocks
@@ -142,8 +155,7 @@ namespace SSGL.Voxel
                             zPositive = !_blocks[x][y][z + 1].IsActive;
                         } 
                         
-                        this.createBlock(xNegative, xPositive, yNegative, yPositive, zNegative, zPositive, x, y, z, _blocks[x][y][z].Type);
-                        
+                        this.createBlock(xNegative, xPositive, yNegative, yPositive, zNegative, zPositive, x, y, z);
                     }
                 }
             }
@@ -166,30 +178,12 @@ namespace SSGL.Voxel
 
         public void Render()
         {
-            DepthStencilState _depthState = new DepthStencilState();
-            _depthState.DepthBufferEnable = true; /* Enable the depth buffer */
-            _depthState.DepthBufferWriteEnable = true; /* When drawing to the screen, write to the depth buffer */
-
-            // Set the World matrix which defines the position of the cube
-            _chunkEffect.World = this._worldMatrix;
-
             // Set the View matrix which defines the camera and what it's looking at
             _chunkEffect.View = GameDirector.Camera.View;
 
             // Set the Projection matrix which defines how we see the scene (Field of view)
             _chunkEffect.Projection = GameDirector.Camera.Projection;
 
-            // Enable textures on the Cube Effect. this is necessary to texture the model
-            _chunkEffect.Texture = GameDirector.Assets.Textures[Terrain.TEXTURE];
-            _chunkEffect.TextureEnabled = true;
-
-            // Enable some pretty lights
-            //_chunkEffect.EnableDefaultLighting();
-
-            // apply the effect and render the cube
-            //RasterizerState rasterizerState = new RasterizerState();
-            //rasterizerState.FillMode = FillMode.WireFrame;
-            //GameDirector.Device.RasterizerState = rasterizerState;
             foreach (EffectPass pass in _chunkEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
@@ -217,7 +211,7 @@ namespace SSGL.Voxel
             }
         }
 
-        private void createBlock(bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive, int x, int y, int z, Terrain type)
+        private void createBlock(bool xNegative, bool xPositive, bool yNegative, bool yPositive, bool zNegative, bool zPositive, int x, int y, int z)
         {
             //Build block
             VertexPositionNormalTexture[] _blockVertices = new VertexPositionNormalTexture[4];
@@ -234,7 +228,7 @@ namespace SSGL.Voxel
             Vector3 BottomRightFront = new Vector3(x + Block.RENDER_SIZE, y - Block.RENDER_SIZE, z - Block.RENDER_SIZE);
             Vector3 BottomRightBack = new Vector3(x + Block.RENDER_SIZE, y - Block.RENDER_SIZE, z + Block.RENDER_SIZE);
 
-            Vector2[] TextureUV = Util.TerrainTextureCoordinates(type);
+            Vector2[] TextureUV = Util.TerrainTextureCoordinates(_blocks[x][y][z].Type);
 
             /// VERTICES //// INDICES ///
             if (zNegative)

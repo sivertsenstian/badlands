@@ -15,6 +15,7 @@ namespace SSGL.Core
         public float Far { get; protected set; }
         public float Near { get; protected set; }
         public Vector3 Position { get; protected set; }
+        public BoundingFrustum Frustrum { get; set; }
         
         private Vector3 _direction;
         private Vector3 _up;
@@ -39,6 +40,7 @@ namespace SSGL.Core
             this._speed = 0.5f;
             this._maxSpeed = 2 * this._speed;
             this.CreateLookAt();
+            this.Frustrum = new BoundingFrustum(this.View * this.Projection);
         }
 
         public override void Initialize()

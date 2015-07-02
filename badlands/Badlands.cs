@@ -69,7 +69,7 @@ namespace Badlands.Core
             //Misc
             GameDirector.Assets.Textures.Add(Misc.DEBUG, Content.Load<Texture2D>("Texture/Debug"));
             //Terrain
-            GameDirector.Assets.Textures.Add(Terrain.TEXTURE, Content.Load<Texture2D>("Texture/Terrain/Terrain_DEBUG"));
+            GameDirector.Assets.Textures.Add(Terrain.TEXTURE, Content.Load<Texture2D>("Texture/Terrain/Terrain"));
             //UI
             GameDirector.Assets.Textures.Add(UI.CURSOR, Content.Load<Texture2D>("Texture/UI/Cursor"));
 

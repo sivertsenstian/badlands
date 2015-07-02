@@ -284,6 +284,7 @@ namespace SSGL.Voxel
 
             if (_cameraPosition != GameDirector.Camera.Position || _cameraView != GameDirector.Camera.View || this._forceVisibilityUpdate)
             {
+                GameDirector.Camera.Frustrum = new BoundingFrustum(GameDirector.Camera.View * GameDirector.Camera.Projection);
                 UpdateRenderList();
                 this._forceVisibilityUpdate = false;
             }
@@ -312,7 +313,7 @@ namespace SSGL.Voxel
 
         bool InView(BoundingSphere boundingSphere)
         {
-            return new BoundingFrustum(GameDirector.Camera.View * GameDirector.Camera.Projection).Intersects(boundingSphere);
+            return GameDirector.Camera.Frustrum.Intersects(boundingSphere);
         }
     }
 }
