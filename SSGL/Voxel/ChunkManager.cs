@@ -17,6 +17,7 @@ namespace SSGL.Voxel
         public List<Chunk> ChunkVisibilityList;
         public List<Chunk> ChunkSetupList;
         public List<Chunk> ChunkUpdateFlagsList;
+        public List<Chunk> ChunkAsyncList;
 
         private Vector3 _cameraPosition;
         private Matrix _cameraView;
@@ -35,14 +36,15 @@ namespace SSGL.Voxel
             ChunkRebuildList = new List<Chunk>();
             ChunkSetupList = new List<Chunk>();
             ChunkUpdateFlagsList = new List<Chunk>();
+            ChunkAsyncList = new List<Chunk>();
 
             this._size = new Vector3(x, y, z);
 
-            for(int i = 0; i < x; i++)
+            for (int i = 0; i < x; i++)
             {
-                for(int j = 0; j < y; j++)
+                for (int j = 0; j < y; j++)
                 {
-                    for(int k = 0; k < z; k++)
+                    for (int k = 0; k < z; k++)
                     {
                         this.Chunks.Add(new Chunk(new Vector3(i * Chunk.CHUNK_SIZE, j * Chunk.CHUNK_SIZE, k * Chunk.CHUNK_SIZE)) { Manager = this });
                     }
@@ -53,7 +55,27 @@ namespace SSGL.Voxel
         //Only load the surrounding chunks in the visibilitylist (camera-position)
         public void UpdateAsyncChunker()
         {
+            this.ChunkAsyncList.Clear();
+            int sizex = (int)Math.Ceiling(this._cameraPosition.X) / 10;
+            sizex += (int)this._cameraPosition.X / 45;
 
+            int sizez = (int)Math.Ceiling(this._cameraPosition.Z) / 10;
+            sizez += (int)this._cameraPosition.Z / 45;
+
+            if (sizex >= 10 && sizez >= 10)
+            {
+                for (int x = sizex - 10; x < sizex; x++)
+                {
+                    for (int y = 0; y < this._size.Y; y++)
+                    {
+                        for (int z = sizez - 10; z < sizez; z++)
+                        {
+                            this.ChunkAsyncList.Add(this.Chunks[(int)(x + this._size.X * (y + this._size.Y * z))]);
+                        }
+                    }
+                }
+            }
+            Console.WriteLine(this.ChunkAsyncList.Count);
         }
 
         public void UpdateLoadList()
@@ -205,9 +227,9 @@ namespace SSGL.Voxel
             ChunkVisibilityList.Clear();
             Chunk chunk;
 
-            for (var i = 0; i < this.Chunks.Count; i++)
+            for (var i = 0; i < this.ChunkAsyncList.Count; i++)
             {
-                chunk = this.Chunks[i];
+                chunk = this.ChunkAsyncList[i];
 
                 if (chunk.IsVisible)
                 {
